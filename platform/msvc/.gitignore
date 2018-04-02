@@ -1,0 +1,5 @@
+facade/
+projects/*
+
+!projects/facade.vcxproj
+!projects/facade.vcxproj.filters
