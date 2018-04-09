@@ -12,7 +12,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\facade\Blackboard.h" />
+    <ClInclude Include="..\..\..\include\facade\DTex.h" />
     <ClInclude Include="..\..\..\include\facade\Facade.h" />
+    <ClInclude Include="..\..\..\include\facade\GTxt.h" />
     <ClInclude Include="..\..\..\include\facade\Image.h" />
     <ClInclude Include="..\..\..\include\facade\ImageLoader.h" />
     <ClInclude Include="..\..\..\include\facade\RenderContext.h" />
@@ -21,7 +23,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\source\Blackboard.cpp" />
+    <ClCompile Include="..\..\..\source\DTex.cpp" />
     <ClCompile Include="..\..\..\source\Facade.cpp" />
+    <ClCompile Include="..\..\..\source\GTxt.cpp" />
     <ClCompile Include="..\..\..\source\Image.cpp" />
     <ClCompile Include="..\..\..\source\ImageLoader.cpp" />
     <ClCompile Include="..\..\..\source\RenderContext.cpp" />
@@ -74,7 +78,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\include;..\..\..\..\cu\src;..\..\..\..\sm\src\sm;..\..\..\..\ps\src\ps;..\..\..\..\guard\include;..\..\..\..\logger\src\logger;..\..\..\..\gimg\src\gimg;..\..\..\..\fs\src\fs;..\..\..\..\memmgr\include;..\..\..\..\node0\include;..\..\..\..\node2\include;..\..\..\..\unirender\include;..\..\..\..\shaderlab\include;..\..\..\..\painting2\include;..\..\..\..\stat\include;..\..\..\..\emitter\include;..\..\..\..\anim\include;..\..\..\..\external\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include;..\..\..\..\cu\src;..\..\..\..\sm\src\sm;..\..\..\..\ps\src\ps;..\..\..\..\guard\include;..\..\..\..\logger\src\logger;..\..\..\..\gimg\src\gimg;..\..\..\..\gtxt\src\gtxt;..\..\..\..\fs\src\fs;..\..\..\..\memmgr\include;..\..\..\..\node0\include;..\..\..\..\node2\include;..\..\..\..\unirender\include;..\..\..\..\shaderlab\include;..\..\..\..\painting2\include;..\..\..\..\stat\include;..\..\..\..\emitter\include;..\..\..\..\anim\include;..\..\..\..\external\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -88,7 +92,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\..\include;..\..\..\..\cu\src;..\..\..\..\sm\src\sm;..\..\..\..\ps\src\ps;..\..\..\..\guard\include;..\..\..\..\logger\src\logger;..\..\..\..\gimg\src\gimg;..\..\..\..\fs\src\fs;..\..\..\..\memmgr\include;..\..\..\..\node0\include;..\..\..\..\node2\include;..\..\..\..\unirender\include;..\..\..\..\shaderlab\include;..\..\..\..\painting2\include;..\..\..\..\stat\include;..\..\..\..\emitter\include;..\..\..\..\anim\include;..\..\..\..\external\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include;..\..\..\..\cu\src;..\..\..\..\sm\src\sm;..\..\..\..\ps\src\ps;..\..\..\..\guard\include;..\..\..\..\logger\src\logger;..\..\..\..\gimg\src\gimg;..\..\..\..\gtxt\src\gtxt;..\..\..\..\fs\src\fs;..\..\..\..\memmgr\include;..\..\..\..\node0\include;..\..\..\..\node2\include;..\..\..\..\unirender\include;..\..\..\..\shaderlab\include;..\..\..\..\painting2\include;..\..\..\..\stat\include;..\..\..\..\emitter\include;..\..\..\..\anim\include;..\..\..\..\external\boost\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
