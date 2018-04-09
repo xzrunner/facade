@@ -21,6 +21,8 @@ private:
 	void LoadUserFontChar(const std::string& str, const std::string& pkg, const std::string& node);
 
 private:
+	static int m_cap_bitmap, m_cap_layout;
+
 	std::set<std::string> m_fonts;
 
 private:

@@ -19,6 +19,8 @@
 #include <painting2/PrimitiveDraw.h>
 #include <painting2/RenderContext.h>
 
+#include <stack>
+
 namespace
 {
 
@@ -93,13 +95,21 @@ set_blend(int mode)
 //	ShaderMgr::Instance()->SetBlendMode(0);
 }
 
+std::stack<std::shared_ptr<pt2::WindowContext>> wc_stack;
+
 static void 
 draw_begin()
 {
-	if (DRAW_BEGIN) {
+	if (DRAW_BEGIN) 
+	{
 		DRAW_BEGIN();
-	} else {
-		s2::RenderCtxStack::Instance()->Push(s2::RenderContext(2, 2, 0, 0));
+	} 
+	else 
+	{
+		wc_stack.push(pt2::Blackboard::Instance()->GetWindowContext());
+		auto new_wc = std::make_shared<pt2::WindowContext>(2.0f, 2.0f, 0, 0);
+		new_wc->Bind();
+		wc_stack.push(new_wc);
 	}
 
 	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
@@ -143,12 +153,14 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 static void 
 draw_end()
 {
-	sl::ShaderMgr::Instance()->FlushShader();
+	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
+	shader_mgr.FlushShader();
 
 	if (DRAW_END) {
 		DRAW_END();
 	} else {
-		s2::RenderCtxStack::Instance()->Pop();
+		wc_stack.pop();
+		wc_stack.top()->Bind();
 	}
 }
 
