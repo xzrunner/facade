@@ -10,13 +10,19 @@
 #include <gtxt_richtext.h>
 #include <sx/ResourceUID.h>
 #include <sx/GlyphStyle.h>
+#include <sx/StringHelper.h>
 #include <shaderlab/RenderContext.h>
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
 #include <shaderlab/Shape2Shader.h>
 #include <painting2/RenderColorCommon.h>
 #include <painting2/PrimitiveDraw.h>
-#include <sx/StringHelper.h>
+#include <painting2/Text.h>
+#include <node0/SceneNode.h>
+#include <node0/CompAsset.h>
+#include <node2/CompBoundingBox.h>
+#include <node2/RenderSystem.h>
+#include <ns/NodeFactory.h>
 
 namespace
 {
@@ -30,7 +36,6 @@ struct render_params
 	const N2_MAT* mt = nullptr;
 	const pt2::Color* mul = nullptr;
 	const pt2::Color* add = nullptr;
-//	void* ud = nullptr;
 };
 
 void
@@ -209,33 +214,34 @@ draw_glyph(int unicode, float x, float y, float w, float h,
 
 void*
 ext_sym_create(const char* str) {
-	CU_STR src = sx::StringHelper::UTF8ToGBK(str);
-	CU_STR::size_type pos = src.find("export");
-	if (pos != CU_STR::npos) {
+	auto src = sx::StringHelper::UTF8ToGBK(str);
+	std::string::size_type pos = src.find("export");
+	if (pos != std::string::npos) {
 		src.insert(pos, " ");
 	}
-	CU_VEC<CU_STR> tokens;
+	std::vector<std::string> tokens;
 	sx::StringHelper::Split(src, " =", tokens);
-	s2::SymPtr sym = nullptr;
+
+	n0::SceneNodePtr node = nullptr;
 	if (tokens.size() == 2) {
 		if (tokens[0] == "path") {
-			sym = SymbolPool::Instance()->Fetch(tokens[1]);
+			node = ns::NodeFactory::Create(tokens[1]);
 		}
 	} else if (tokens.size() == 4) {
-		if (tokens[0] == "pkg" && tokens[2] == "export") {
-			uint32_t id = simp::NodeFactory::Instance()->GetNodeID(tokens[1], tokens[3]);
-			if (id != 0xffffffff) {
-				sym = SymbolPool::Instance()->Fetch(id);
-			}
-		}
+		//if (tokens[0] == "pkg" && tokens[2] == "export") {
+		//	uint32_t id = simp::NodeFactory::Instance()->GetNodeID(tokens[1], tokens[3]);
+		//	if (id != 0xffffffff) {
+		//		sym = SymbolPool::Instance()->Fetch(id);
+		//	}
+		//}
 	}
-	return new s2::SymPtr(sym);
+	return new n0::SceneNodePtr(node);
 }
 
 void
 ext_sym_release(void* ext_sym) {
 	if (ext_sym) {
-		delete static_cast<s2::SymPtr*>(ext_sym);
+		delete static_cast<n0::SceneNodePtr*>(ext_sym);
 	}
 }
 
@@ -246,10 +252,11 @@ ext_sym_get_size(void* ext_sym, int* width, int* height) {
 		return;
 	}
 
-	s2::SymPtr sym(*static_cast<s2::SymPtr*>(ext_sym));
-	sm::vec2 sz = sym->GetBounding().Size();
-	*width  = static_cast<int>(sz.x);
-	*height = static_cast<int>(sz.y);
+	auto node(*static_cast<n0::SceneNodePtr*>(ext_sym));
+	auto& cbb = node->GetUniqueComp<n2::CompBoundingBox>();
+	auto& sz = cbb.GetSize();
+	*width  = static_cast<int>(sz.Width());
+	*height = static_cast<int>(sz.Height());
 }
 
 void
@@ -258,20 +265,23 @@ ext_sym_render(void* ext_sym, float x, float y, void* ud) {
 		return;
 	}
 
-	s2::RenderParams rp;
+	n2::RenderParams rp;
 	render_params* _rp = (render_params*)ud;
 	if (_rp->mt) {
-		rp.mt = *_rp->mt;
+		rp.SetMatrix(*_rp->mt);
 	}
+	pt2::RenderColorCommon col;
 	if (_rp->mul) {
-		rp.col_common.mul = *_rp->mul;
+		col.mul = *_rp->mul;
 	}
 	if (_rp->add) {
-		rp.col_common.add = *_rp->add;
+		col.add = *_rp->add;
 	}
+	rp.SetColor(col);
 
-	s2::SymPtr sym(*static_cast<s2::SymPtr*>(ext_sym));
-	s2::DrawNode::Draw(*sym, rp, sm::vec2(x, y));
+	auto node(*static_cast<n0::SceneNodePtr*>(ext_sym));
+	auto& casset = node->GetSharedComp<n0::CompAsset>();
+	n2::RenderSystem::Draw(casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp);
 }
 
 /************************************************************************/
@@ -281,6 +291,40 @@ ext_sym_render(void* ext_sym, float x, float y, void* ud) {
 void
 get_uf_layout(int unicode, int font, struct gtxt_glyph_layout* layout) {
 //	facade::GTxt::Instance()->GetUFLayout(unicode, font, layout);
+}
+
+void CopyColor(gtxt_glyph_color& dst, const pt2::GradientColor& src)
+{
+	GD_ASSERT(src.items.size() >= 1 && src.items.size() <= 3, "err col");
+	switch (src.items.size())
+	{
+	case 1:
+		{
+			dst.mode_type = 0;
+			dst.mode.ONE.color.integer = src.items[0].col.ToRGBA();
+		}
+		break;
+	case 2:
+		{
+			dst.mode_type = 1;
+			dst.mode.TWO.begin_col.integer = src.items[0].col.ToRGBA();
+			dst.mode.TWO.begin_pos = src.items[0].pos;
+			dst.mode.TWO.end_col.integer = src.items[1].col.ToRGBA();
+			dst.mode.TWO.end_pos = src.items[1].pos;
+		}
+		break;
+	case 3:
+		{
+			dst.mode_type = 2;
+			dst.mode.THREE.begin_col.integer = src.items[0].col.ToRGBA();
+			dst.mode.THREE.begin_pos = src.items[0].pos;
+			dst.mode.THREE.mid_col.integer = src.items[1].col.ToRGBA();
+			dst.mode.THREE.mid_pos = src.items[1].pos;
+			dst.mode.THREE.end_col.integer = src.items[2].col.ToRGBA();
+			dst.mode.THREE.end_pos = src.items[2].pos;
+		}
+		break;
+	}
 }
 
 }
@@ -304,8 +348,26 @@ GTxt::GTxt()
 	gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
 }
 
-void GTxt::Init(const std::vector<std::pair<std::string, std::string>>& fonts, 
-	            const std::vector<std::pair<std::string, std::string>>& user_fonts)
+void GTxt::Draw(const pt2::Text& text, const sm::Matrix2D& mat, const pt2::Color& mul, 
+	            const pt2::Color& add, int time, bool richtext)
+{
+	gtxt_label_style style;
+	LoadLabelStyle(style, text.tb);
+
+	render_params rp;
+	rp.mt = &mat;
+	rp.mul = &mul;
+	rp.add = &add;
+
+	if (richtext) {
+		gtxt_label_draw_richtext(text.text.c_str(), &style, time, (void*)&rp);
+	} else {
+		gtxt_label_draw(text.text.c_str(), &style, (void*)&rp);
+	}
+}
+
+void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,
+	                 const std::vector<std::pair<std::string, std::string>>& user_fonts)
 {
 	for (auto& pair : fonts) {
 		LoadFont(pair.first, pair.second);
@@ -334,6 +396,28 @@ void GTxt::LoadUserFont(const std::string& name, const std::string& filepath)
 void GTxt::LoadUserFontChar(const std::string& str, const std::string& pkg, const std::string& node)
 {
 	// todo
+}
+
+void GTxt::LoadLabelStyle(gtxt_label_style& dst, const pt2::Textbox& src)
+{
+	dst.width = src.width;
+	dst.height = src.height;
+
+	dst.align_h = src.align_hori;
+	dst.align_v = src.align_vert;
+
+	dst.space_h = src.space_hori;
+	dst.space_v = src.space_vert;
+
+	dst.gs.font = src.font_type;
+	dst.gs.font_size = src.font_size;
+	CopyColor(dst.gs.font_color, src.font_color);
+
+	dst.gs.edge = src.has_edge;
+	dst.gs.edge_size = src.edge_size;
+	CopyColor(dst.gs.edge_color, src.edge_color);
+
+	dst.overflow = src.overflow;
 }
 
 }

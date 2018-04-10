@@ -1,5 +1,4 @@
 #include "facade/DTex.h"
-#include "facade/Blackboard.h"
 #include "facade/RenderContext.h"
 
 #include <dtex2/RenderAPI.h>
@@ -9,6 +8,8 @@
 #include <dtex2/CacheGlyph.h>
 #include <dtex2/CacheMgr.h>
 #include <unirender/RenderContext.h>
+#include <unirender/Blackboard.h>
+#include <shaderlab/Blackboard.h>
 #include <shaderlab/RenderContext.h>
 #include <shaderlab/ShaderMgr.h>
 #include <shaderlab/ShapeShader.h>
@@ -18,11 +19,14 @@
 #include <painting2/WindowContext.h>
 #include <painting2/PrimitiveDraw.h>
 #include <painting2/RenderContext.h>
+#include <stat/StatImages.h>
 
 #include <stack>
 
 namespace
 {
+
+const int IMG_ID = -3;
 
 void (*DRAW_BEGIN)()   = nullptr;
 void (*DRAW_END)()     = nullptr;
@@ -35,14 +39,11 @@ void (*ERROR_RELOAD)() = nullptr;
 static void 
 clear_color_part(float xmin, float ymin, float xmax, float ymax)
 {
-	auto bb = facade::Blackboard::Instance();
-	auto& rc = bb->GetRenderContext();
-
-	rc->GetUrRc().EnableBlend(false);
+	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	ur_rc.EnableBlend(false);
 //	glBlendFunc(GL_ONE, GL_ZERO);
 
-	auto& shader_mgr = rc->GetSlRc().GetShaderMgr();
-	
+	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	shader_mgr.SetShader(sl::SHAPE2);
 	auto shader = static_cast<sl::ShapeShader*>(shader_mgr.GetShader());
 	
@@ -70,7 +71,7 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 // 	ShaderLab::Instance()->Flush();
 
 //	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	rc->GetUrRc().EnableBlend(true);
+	ur_rc.EnableBlend(true);
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +82,7 @@ static void
 set_program()
 {
 	// todo
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
+	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	shader_mgr.SetShader(sl::SPRITE2);
 }
 
@@ -112,7 +113,7 @@ draw_begin()
 		wc_stack.push(new_wc);
 	}
 
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
+	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	shader_mgr.SetShader(sl::SPRITE2);
 	auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader());
 	shader->SetColor(0xffffffff, 0);
@@ -130,7 +131,7 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 		texcoords[i].y = _texcoords[i * 2 + 1];
 	}
 
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
+	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	switch (shader_mgr.GetShaderType())
 	{
 	case sl::SPRITE2:
@@ -153,7 +154,7 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 static void 
 draw_end()
 {
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
+	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	shader_mgr.FlushShader();
 
 	if (DRAW_END) {
@@ -167,7 +168,7 @@ draw_end()
 static void 
 draw_flush()
 {
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
+	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	auto shader = shader_mgr.GetShader();
 	if (shader) {
 		shader->Commit();
@@ -177,28 +178,28 @@ draw_flush()
 static void
 scissor_push(int x, int y, int w, int h)
 {
-	auto& scissor = facade::Blackboard::Instance()->GetRenderContext()->GetPt2Rc().GetScissor();
+	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
 	scissor.Push(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), false, true);
 }
 
 static void 
 scissor_pop()
 {
-	auto& scissor = facade::Blackboard::Instance()->GetRenderContext()->GetPt2Rc().GetScissor();
+	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
 	scissor.Pop();
 }
 
 static void 
 scissor_disable()
 {
-	auto& scissor = facade::Blackboard::Instance()->GetRenderContext()->GetPt2Rc().GetScissor();
+	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
 	scissor.Disable();
 }
 
 static void 
 scissor_enable()
 {
-	auto& scissor = facade::Blackboard::Instance()->GetRenderContext()->GetPt2Rc().GetScissor();
+	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
 	scissor.Enable();
 }
 
@@ -333,18 +334,18 @@ scissor_enable()
 //{
 //	ThreadPool::Instance()->Run(task);
 //}
-//
-//static void
-//stat_tex_add(int width, int height, int format)
-//{
-//	s2::StatImages::Instance()->Add(IMG_ID, width, height, format);
-//}
-//
-//static void
-//stat_tex_remove(int width, int height, int format)
-//{
-//	s2::StatImages::Instance()->Remove(IMG_ID, width, height, format);
-//}
+
+static void
+stat_tex_add(int width, int height, int format)
+{
+	st::StatImages::Instance()->Add(IMG_ID, width, height, format);
+}
+
+static void
+stat_tex_remove(int width, int height, int format)
+{
+	st::StatImages::Instance()->Remove(IMG_ID, width, height, format);
+}
 
 /************************************************************************/
 /* Cache                                                                */
@@ -471,15 +472,11 @@ DTex::DTex()
 	render_cb.scissor_disable  = scissor_disable;
 	render_cb.scissor_enable   = scissor_enable;
 
-	//auto bb = facade::Blackboard::Instance();
-	//auto& rc = bb->GetRenderContext();
-	//rc->GetUrRc().EnableBlend(false);
-
 	dtex::RenderAPI::InitCallback(render_cb);
-	auto& rc = facade::Blackboard::Instance()->GetRenderContext();
-	dtex::RenderAPI::InitRenderContext(&rc->GetUrRc());
+	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	dtex::RenderAPI::InitRenderContext(&ur_rc);
 
-	//dtex::ResourceAPI::Callback res_cb;
+	dtex::ResourceAPI::Callback res_cb;
 	//res_cb.error_reload            = error_reload;
 	//res_cb.get_tex_filepath        = get_tex_filepath;
 	//res_cb.load_file               = load_file;
@@ -488,9 +485,9 @@ DTex::DTex()
 	//res_cb.load_texture_cb2        = load_texture_cb2;
 	//res_cb.cache_pkg_static_tex_ok = cache_pkg_static_tex_ok;
 	//res_cb.submit_task             = submit_task;
-	//res_cb.stat_tex_add            = stat_tex_add;
-	//res_cb.stat_tex_remove         = stat_tex_remove;
-	//dtex::ResourceAPI::InitCallback(res_cb);
+	res_cb.stat_tex_add            = stat_tex_add;
+	res_cb.stat_tex_remove         = stat_tex_remove;
+	dtex::ResourceAPI::InitCallback(res_cb);
 
 	//dtex::CacheAPI::Callback cache_cb;
 	//cache_cb.relocate_pkg        = relocate_pkg;
@@ -509,6 +506,92 @@ DTex::DTex()
 	glyph_cb.load_finish = glyph_load_finish;
 	m_cg = new dtex::CacheGlyph(1024, 512, glyph_cb);
 	dtex::CacheMgr::Instance()->Add(m_cg, "CG");
+}
+
+void DTex::LoadSymStart()
+{
+	m_c2->LoadStart();
+}
+
+void DTex::LoadSymbol(sx::UID sym_id, int tex_id, int tex_w, int tex_h, const sm::i16_rect& region,
+	int padding, int extrude, int src_extrude)
+{
+	dtex::Rect r;
+	r.xmin = region.xmin;
+	r.ymin = region.ymin;
+	r.xmax = region.xmax;
+	r.ymax = region.ymax;
+	m_c2->Load(tex_id, tex_w, tex_h, r, sym_id, padding, extrude, src_extrude);
+}
+
+void DTex::LoadSymFinish()
+{
+	m_c2->LoadFinish();
+}
+
+const float* DTex::QuerySymbol(sx::UID sym_id, int& tex_id, int& block_id) const
+{
+	if (!m_c2_enable) {
+		return nullptr;
+	}
+
+	int b_id;
+	const dtex::CS_Node* node = m_c2->Query(sym_id, b_id);
+	if (node) {
+		tex_id = m_c2->GetTexID();
+		block_id = b_id;
+		return node->GetTexcoords();
+	}
+	else {
+		return nullptr;
+	}
+}
+
+void DTex::ClearSymbolCache()
+{
+	if (m_c2) {
+		m_c2->Clear();
+	}
+//	DTexC2Strategy::Instance()->Clear();
+}
+
+void DTex::DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint64_t key)
+{
+	m_c2->Load(tex_id, tex_w, tex_h, r, key, 1, 0);
+}
+
+void DTex::LoadGlyph(uint32_t* bitmap, int width, int height, uint64_t key)
+{
+	m_cg->Load(bitmap, width, height, key);
+}
+
+bool DTex::QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const
+{
+	return m_cg->QueryAndInsert(key, texcoords, tex_id);
+}
+
+void DTex::Clear()
+{
+}
+
+void DTex::Flush()
+{
+	m_cg->Flush();
+}
+
+void DTex::DebugDraw() const
+{
+	// 	const CU_MAP<CU_STR, dtex::Cache*>& caches 
+	// 		= dtex::CacheMgr::Instance()->FetchAll();
+	// 	CU_MAP<CU_STR, dtex::Cache*>::const_iterator itr = caches.begin();
+	// 	for ( ; itr != caches.end(); ++itr) {
+	// 		itr->second->DebugDraw();
+	// 	}
+
+	//////////////////////////////////////////////////////////////////////////
+
+	m_c2->DebugDraw();
+//	m_cg->DebugDraw();
 }
 
 }
