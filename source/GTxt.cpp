@@ -432,7 +432,7 @@ void GTxt::LoadLabelStyle(gtxt_label_style& dst, const pt2::Textbox& src)
 	dst.gs.edge_size = src.edge_size;
 	CopyColor(dst.gs.edge_color, src.edge_color);
 
-	dst.overflow = src.overflow;
+	dst.over_label = src.overlabel;
 }
 
 }
