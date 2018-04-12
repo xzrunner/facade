@@ -155,13 +155,26 @@ render(int id, const float* texcoords, float x, float y, float w, float h, const
 	}
 }
 
+bool 
+has_rotated_gradient_color(const gtxt_glyph_color& col)
+{
+	return (col.mode_type == 1 && fabs(col.mode.TWO.angle) > FLT_EPSILON)
+		|| (col.mode_type == 2 && fabs(col.mode.THREE.angle) > FLT_EPSILON);
+}
+
 void
-draw_glyph(int unicode, float x, float y, float w, float h, 
+draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 		   const gtxt_glyph_style* gs, const gtxt_draw_style* ds, void* ud) 
 {	
 	int tex_id, block_id;
 	int ft_count = gtxt_ft_get_font_cout();
-	sx::UID uid = sx::ResourceUID::Glyph(unicode, sx::GlyphStyle(gs));
+
+	float line_x = 0;
+	if (has_rotated_gradient_color(gs->font_color) ||
+		gs->edge && has_rotated_gradient_color(gs->edge_color)) {
+		line_x = x - start_x;
+	}
+	sx::UID uid = sx::ResourceUID::Glyph(unicode, sx::GlyphStyle(gs, line_x));
 
 	auto dtex = facade::DTex::Instance();
 
@@ -191,7 +204,7 @@ draw_glyph(int unicode, float x, float y, float w, float h,
 			else 
 			{
 				struct gtxt_glyph_layout layout;
-				uint32_t* bmp = gtxt_glyph_get_bitmap(unicode, gs, &layout);
+				uint32_t* bmp = gtxt_glyph_get_bitmap(unicode, line_x, gs, &layout);
 				if (!bmp) {
 					return;
 				}
@@ -311,6 +324,7 @@ void CopyColor(gtxt_glyph_color& dst, const pt2::GradientColor& src)
 			dst.mode.TWO.begin_pos = src.items[0].pos;
 			dst.mode.TWO.end_col.integer = src.items[1].col.ToRGBA();
 			dst.mode.TWO.end_pos = src.items[1].pos;
+			dst.mode.TWO.angle = src.angle;
 		}
 		break;
 	case 3:
@@ -322,6 +336,7 @@ void CopyColor(gtxt_glyph_color& dst, const pt2::GradientColor& src)
 			dst.mode.THREE.mid_pos = src.items[1].pos;
 			dst.mode.THREE.end_col.integer = src.items[2].col.ToRGBA();
 			dst.mode.THREE.end_pos = src.items[2].pos;
+			dst.mode.THREE.angle = src.angle;
 		}
 		break;
 	}
