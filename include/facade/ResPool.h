@@ -30,6 +30,10 @@ public:
 	static ResPool& Instance();
 
 private:
+	template <typename T>
+	std::string Key(const std::string& filepath) const;
+
+private:
 	std::map<std::string, std::weak_ptr<void>> m_path2res;
 
 	static std::unique_ptr<ResPool> m_instance;
