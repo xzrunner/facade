@@ -7,13 +7,15 @@
 #include <anim/GlobalClock.h>
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
+#include <node2/AABBSystem.h>
 
 namespace
 {
 
-void draw_text(const pt2::Text& text, const sm::Matrix2D& mat, const pt2::RenderColorCommon& col)
+template<typename T>
+sm::rect get_bounding(const T& data)
 {
-	facade::GTxt::Draw(text, mat, col.mul, col.add, 0, false);
+	return n2::AABBSystem::GetBounding(data);
 }
 
 }
@@ -29,7 +31,12 @@ void Facade::Init()
 	GTxt::Instance();
 
 	pt2::Callback::Funs pt2_cb;
-	pt2_cb.draw_text = draw_text;
+	pt2_cb.draw_text = [](const pt2::Text& text, const sm::Matrix2D& mat, const pt2::RenderColorCommon& col) {
+		GTxt::Draw(text, mat, col.mul, col.add, 0, false);
+	};
+	pt2_cb.get_bounding = [](const n0::CompAsset& casset)->sm::rect {
+		return n2::AABBSystem::GetBounding(casset);
+	};
 	pt2::Callback::RegisterCallback(pt2_cb);
 }
 
