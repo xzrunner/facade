@@ -1,6 +1,7 @@
 #include "facade/Facade.h"
 #include "facade/DTex.h"
 #include "facade/GTxt.h"
+#include "facade/Model.h"
 
 #include <emitter/Particle3d.h>
 #include <emitter/GlobalClock.h>
@@ -29,7 +30,9 @@ void Facade::Init()
 
 	DTex::Instance();
 	GTxt::Instance();
+	Model::Instance();
 
+	// pt2
 	pt2::Callback::Funs pt2_cb;
 	pt2_cb.draw_text = [](const pt2::Text& text, const sm::Matrix2D& mat, const pt2::RenderColorCommon& col) {
 		GTxt::Draw(text, mat, col.mul, col.add, 0, false);

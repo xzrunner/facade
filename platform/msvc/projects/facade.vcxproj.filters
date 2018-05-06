@@ -14,6 +14,9 @@
     <ClCompile Include="..\..\..\source\DTex.cpp">
       <Filter>3rd</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\Model.cpp">
+      <Filter>3rd</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\facade\Blackboard.h" />
@@ -27,6 +30,9 @@
       <Filter>3rd</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\facade\DTex.h">
+      <Filter>3rd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\facade\Model.h">
       <Filter>3rd</Filter>
     </ClInclude>
   </ItemGroup>
