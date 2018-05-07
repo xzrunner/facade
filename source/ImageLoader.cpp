@@ -38,7 +38,7 @@ bool ImageLoader::Load()
 
 //bool ImageLoader::AsyncLoad(int format, int width, int height, const std::shared_ptr<Image>& img)
 //{
-//	if (m_res_path.IsSingleFile() && 
+//	if (m_res_path.IsSingleFile() &&
 //		m_res_path.GetFilepath().find(".ept") == CU_STR::npos) {
 //		return false;
 //	}
@@ -91,6 +91,21 @@ bool ImageLoader::LoadRaw()
 	case GPF_RGBA8:
 		tf = ur::TEXTURE_RGBA8;
 		break;
+	case GPF_BGRA_EXT:
+		tf = ur::TEXTURE_BGRA_EXT;
+		break;
+	case GPF_BGR_EXT:
+		tf = ur::TEXTURE_BGR_EXT;
+		break;
+	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		break;
+	case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+		break;
+	case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		break;
 	}
 
 	m_format = tf;
@@ -103,13 +118,13 @@ bool ImageLoader::LoadRaw()
 
 //bool ImageLoader::LoadBin()
 //{
-//	if (m_res_path.IsSingleFile()) 
+//	if (m_res_path.IsSingleFile())
 //	{
 //		timp::TextureLoader loader(m_res_path.GetFilepath().c_str());
 //		loader.Load();
 //		return LoadBin(loader);
-//	} 
-//	else 
+//	}
+//	else
 //	{
 //		fs_file* file = fs_open(m_res_path.GetFilepath().c_str(), "rb");
 //		timp::TextureLoader loader(file, m_res_path.GetOffset());
