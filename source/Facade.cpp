@@ -6,6 +6,7 @@
 #include <emitter/Particle3d.h>
 #include <emitter/GlobalClock.h>
 #include <anim/GlobalClock.h>
+#include <model/GlobalClock.h>
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
 #include <node2/AABBSystem.h>
@@ -47,6 +48,7 @@ void Facade::Update(float dt)
 {
 	et::GlobalClock::Instance()->Update(dt);
 	anim::GlobalClock::Instance()->Update(dt);
+	model::GlobalClock::Instance()->Update(dt);
 }
 
 }
