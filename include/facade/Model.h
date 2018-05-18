@@ -10,7 +10,7 @@
 namespace facade
 {
 
-class Model
+struct Model
 {
 private:
 	std::map<std::string, std::shared_ptr<Image>> m_path2images;
