@@ -21,4 +21,9 @@ ResPool::~ResPool()
 {
 }
 
+std::string ResPool::Key2Filepath(const std::string& key) const
+{
+	return key.substr(0, key.find_last_of(';'));
+}
+
 }
