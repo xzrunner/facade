@@ -106,6 +106,8 @@ bool ImageLoader::LoadRaw()
 	case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
 		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		break;
+	default:
+		GD_REPORT_ASSERT("unknown type.");
 	}
 
 	m_format = tf;
