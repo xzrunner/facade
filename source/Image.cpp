@@ -41,6 +41,12 @@ Image::Image(int pkg_id, const std::string& res_path, bool async)
 	}
 }
 
+Image::Image(const std::shared_ptr<Texture>& tex)
+	: m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
+	, m_texture(tex)
+{
+}
+
 Image::~Image()
 {
 	--ALL_IMG_COUNT;
@@ -93,13 +99,13 @@ uint16_t Image::GetHeight() const
 	return m_texture->GetHeight();
 }
 
-uint32_t Image::GetTexID() const 
-{ 
-	return m_texture->GetTexID(); 
+uint32_t Image::GetTexID() const
+{
+	return m_texture->GetTexID();
 }
 
-bool Image::IsLoadFinished() const 
-{ 
+bool Image::IsLoadFinished() const
+{
 	if (m_texture) {
 		return m_texture->IsLoadFinished();
 	} else {
@@ -107,8 +113,8 @@ bool Image::IsLoadFinished() const
 	}
 }
 
-void Image::SetLoadFinished(bool finished) 
-{ 
+void Image::SetLoadFinished(bool finished)
+{
 	if (m_texture) {
 		m_texture->SetLoadFinished(finished);
 	}

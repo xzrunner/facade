@@ -14,6 +14,7 @@ class Image
 public:
 	Image();
 	Image(int pkg_id, const std::string& res_path, bool async);
+	Image(const std::shared_ptr<Texture>& tex);
 	virtual ~Image();
 
 	// for ResPool
@@ -27,7 +28,7 @@ public:
 	uint16_t GetHeight() const;
 
 	const std::shared_ptr<Texture>& GetTexture() const { return m_texture; }
-	
+
 	bool IsLoadFinished() const;
 	void SetLoadFinished(bool finished);
 
