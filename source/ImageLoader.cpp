@@ -11,6 +11,8 @@
 #include <shaderlab/RenderContext.h>
 #include <fs_file.h>
 
+#include <boost/filesystem.hpp>
+
 namespace facade
 {
 
@@ -66,6 +68,10 @@ bool ImageLoader::Load()
 
 bool ImageLoader::LoadRaw()
 {
+	if (!boost::filesystem::is_regular_file(m_res_path)) {
+		return false;
+	}
+
 	int w, h, fmt;
 	uint8_t* pixels = gimg_import(m_res_path.c_str(), &w, &h, &fmt);
 	if (!pixels) {
