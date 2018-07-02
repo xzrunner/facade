@@ -17,7 +17,6 @@
     <ClInclude Include="..\..\..\include\facade\GTxt.h" />
     <ClInclude Include="..\..\..\include\facade\Image.h" />
     <ClInclude Include="..\..\..\include\facade\ImageLoader.h" />
-    <ClInclude Include="..\..\..\include\facade\Model.h" />
     <ClInclude Include="..\..\..\include\facade\Multitask.h" />
     <ClInclude Include="..\..\..\include\facade\RenderContext.h" />
     <ClInclude Include="..\..\..\include\facade\ResPool.h" />
@@ -30,7 +29,6 @@
     <ClCompile Include="..\..\..\source\GTxt.cpp" />
     <ClCompile Include="..\..\..\source\Image.cpp" />
     <ClCompile Include="..\..\..\source\ImageLoader.cpp" />
-    <ClCompile Include="..\..\..\source\Model.cpp" />
     <ClCompile Include="..\..\..\source\Multitask.cpp" />
     <ClCompile Include="..\..\..\source\RenderContext.cpp" />
     <ClCompile Include="..\..\..\source\ResPool.cpp" />

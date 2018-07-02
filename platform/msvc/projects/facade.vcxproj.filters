@@ -14,9 +14,6 @@
     <ClCompile Include="..\..\..\source\DTex.cpp">
       <Filter>3rd</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\source\Model.cpp">
-      <Filter>3rd</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\source\Multitask.cpp">
       <Filter>3rd</Filter>
     </ClCompile>
@@ -33,9 +30,6 @@
       <Filter>3rd</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\facade\DTex.h">
-      <Filter>3rd</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\facade\Model.h">
       <Filter>3rd</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\facade\Multitask.h">

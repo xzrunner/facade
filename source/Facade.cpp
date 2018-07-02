@@ -1,7 +1,6 @@
 #include "facade/Facade.h"
 #include "facade/DTex.h"
 #include "facade/GTxt.h"
-#include "facade/Model.h"
 
 #include <emitter/Particle3d.h>
 #include <emitter/GlobalClock.h>
@@ -31,7 +30,6 @@ void Facade::Init()
 
 	DTex::Instance();
 	GTxt::Instance();
-	Model::Instance();
 
 	// pt2
 	pt2::Callback::Funs pt2_cb;
