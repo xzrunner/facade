@@ -24,12 +24,22 @@ sm::rect get_bounding(const T& data)
 namespace facade
 {
 
+CU_SINGLETON_DEFINITION(Facade);
+
+Facade::Facade()
+{
+}
+
 void Facade::Init()
 {
 	et::Particle3d::Init();
 
 	DTex::Instance();
 	GTxt::Instance();
+
+	for (auto& cb : m_init_cb) {
+		cb();
+	}
 
 	// pt2
 	pt2::Callback::Funs pt2_cb;
@@ -44,6 +54,10 @@ void Facade::Init()
 
 void Facade::Update(float dt)
 {
+	for (auto& cb : m_update_cb) {
+		cb(dt);
+	}
+
 	et::GlobalClock::Instance()->Update(dt);
 	anim::GlobalClock::Instance()->Update(dt);
 	model::GlobalClock::Instance()->Update(dt);
