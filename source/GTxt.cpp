@@ -294,7 +294,7 @@ ext_sym_render(void* ext_sym, float x, float y, void* ud) {
 
 	auto node(*static_cast<n0::SceneNodePtr*>(ext_sym));
 	auto& casset = node->GetSharedComp<n0::CompAsset>();
-	n2::RenderSystem::Draw(casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp);
+	n2::RenderSystem::Instance()->Draw(casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp);
 }
 
 /************************************************************************/
