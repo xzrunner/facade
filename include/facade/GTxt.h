@@ -9,7 +9,7 @@
 
 struct gtxt_label_style;
 
-namespace pt2 { class Text; class Color; class Textbox; }
+namespace pt2 { class Color; class Textbox; }
 
 namespace facade
 {
@@ -20,8 +20,10 @@ public:
 	void LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,
 		const std::vector<std::pair<std::string, std::string>>& user_fonts);
 
-	static void Draw(const pt2::Text& text, const sm::Matrix2D& mat,
+	static void Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
 		const pt2::Color& mul, const pt2::Color& add, int time, bool richtext);
+
+	static sm::vec2 CalcLabelSize(const std::string& text, const pt2::Textbox& style);
 
 private:
 	void LoadFont(const std::string& name, const std::string& filepath);

@@ -363,11 +363,11 @@ GTxt::GTxt()
 	gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
 }
 
-void GTxt::Draw(const pt2::Text& text, const sm::Matrix2D& mat, const pt2::Color& mul, 
-	            const pt2::Color& add, int time, bool richtext)
+void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat, 
+	            const pt2::Color& mul, const pt2::Color& add, int time, bool richtext)
 {
-	gtxt_label_style style;
-	LoadLabelStyle(style, text.tb);
+	gtxt_label_style gtxt_style;
+	LoadLabelStyle(gtxt_style, style);
 
 	render_params rp;
 	rp.mt = &mat;
@@ -375,10 +375,21 @@ void GTxt::Draw(const pt2::Text& text, const sm::Matrix2D& mat, const pt2::Color
 	rp.add = &add;
 
 	if (richtext) {
-		gtxt_label_draw_richtext(text.text.c_str(), &style, time, (void*)&rp);
+		gtxt_label_draw_richtext(text.c_str(), &gtxt_style, time, (void*)&rp);
 	} else {
-		gtxt_label_draw(text.text.c_str(), &style, (void*)&rp);
+		gtxt_label_draw(text.c_str(), &gtxt_style, (void*)&rp);
 	}
+}
+
+sm::vec2 GTxt::CalcLabelSize(const std::string& text, const pt2::Textbox& style)
+{
+	gtxt_label_style gtxt_style;
+	LoadLabelStyle(gtxt_style, style);
+
+	sm::vec2 sz;
+	gtxt_get_label_size(text.c_str(), &gtxt_style, &sz.x, &sz.y);
+
+	return sz;
 }
 
 void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,

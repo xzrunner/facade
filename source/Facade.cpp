@@ -43,8 +43,13 @@ void Facade::Init()
 
 	// pt2
 	pt2::Callback::Funs pt2_cb;
-	pt2_cb.draw_text = [](const pt2::Text& text, const sm::Matrix2D& mat, const pt2::RenderColorCommon& col) {
-		GTxt::Draw(text, mat, col.mul, col.add, 0, false);
+	pt2_cb.draw_text = [](
+		const std::string& text, const pt2::Textbox& style, 
+		const sm::Matrix2D& mat, const pt2::Color& mul_col, const pt2::Color& add_col) {
+		GTxt::Draw(text, style, mat, mul_col, add_col, 0, false);
+	};
+	pt2_cb.calc_label_size = [](const std::string& text, const pt2::Textbox& style)->sm::vec2 {
+		return GTxt::CalcLabelSize(text, style);
 	};
 	pt2_cb.get_bounding = [](const n0::CompAsset& casset)->sm::rect {
 		return n2::AABBSystem::GetBounding(casset);
