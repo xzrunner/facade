@@ -10,7 +10,7 @@
 #include <gtxt_richtext.h>
 #include <sx/ResourceUID.h>
 #include <sx/GlyphStyle.h>
-#include <sx/StringHelper.h>
+#include <cpputil/StringHelper.h>
 #include <shaderlab/RenderContext.h>
 #include <shaderlab/FilterShader.h>
 #include <shaderlab/Sprite2Shader.h>
@@ -227,13 +227,13 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 
 void*
 ext_sym_create(const char* str) {
-	auto src = sx::StringHelper::UTF8ToGBK(str);
+	auto src = cpputil::StringHelper::UTF8ToGBK(str);
 	std::string::size_type pos = src.find("export");
 	if (pos != std::string::npos) {
 		src.insert(pos, " ");
 	}
 	std::vector<std::string> tokens;
-	sx::StringHelper::Split(src, " =", tokens);
+	cpputil::StringHelper::Split(src, " =", tokens);
 
 	n0::SceneNodePtr node = nullptr;
 	if (tokens.size() == 2) {
