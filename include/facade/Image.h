@@ -3,10 +3,11 @@
 #include <string>
 #include <memory>
 
+namespace pt2 { class Texture; }
+
 namespace facade
 {
 
-class Texture;
 class ImageLoader;
 
 class Image
@@ -14,7 +15,7 @@ class Image
 public:
 	Image();
 	Image(int pkg_id, const std::string& res_path, bool async);
-	Image(const std::shared_ptr<Texture>& tex);
+	Image(const std::shared_ptr<pt2::Texture>& tex);
 	virtual ~Image();
 
 	// for ResPool
@@ -27,7 +28,7 @@ public:
 	uint16_t GetWidth() const;
 	uint16_t GetHeight() const;
 
-	const std::shared_ptr<Texture>& GetTexture() const { return m_texture; }
+	const std::shared_ptr<pt2::Texture>& GetTexture() const { return m_texture; }
 
 	bool IsLoadFinished() const;
 	void SetLoadFinished(bool finished);
@@ -44,7 +45,7 @@ protected:
 
 	std::string m_res_path;
 
-	std::shared_ptr<Texture> m_texture;
+	std::shared_ptr<pt2::Texture> m_texture;
 
 }; // Image
 

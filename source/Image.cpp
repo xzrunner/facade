@@ -1,6 +1,5 @@
 #include "facade/Image.h"
 #include "facade/RenderContext.h"
-#include "facade/Texture.h"
 #include "facade/ImageLoader.h"
 
 #include <painting2/Texture.h>
@@ -17,7 +16,7 @@ static int ALL_IMG_COUNT = 0;
 
 Image::Image()
 	: m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
-	, m_texture(std::make_shared<Texture>(0, 0, 0, 0))
+	, m_texture(std::make_shared<pt2::Texture>(&ur::Blackboard::Instance()->GetRenderContext(), 0, 0, 0, 0))
 {
 	++ALL_IMG_COUNT;
 }
@@ -25,7 +24,7 @@ Image::Image()
 Image::Image(int pkg_id, const std::string& res_path, bool async)
 	: m_pkg_id(pkg_id)
 	, m_res_path(res_path)
-	, m_texture(std::make_shared<Texture>(0, 0, 0, 0))
+	, m_texture(std::make_shared<pt2::Texture>(&ur::Blackboard::Instance()->GetRenderContext(), 0, 0, 0, 0))
 {
 	++ALL_IMG_COUNT;
 
@@ -36,12 +35,12 @@ Image::Image(int pkg_id, const std::string& res_path, bool async)
 		if (ret) {
 			LoadFromLoader(loader);
 			st::StatImages::Instance()->Add(
-				pkg_id, m_texture->GetWidth(), m_texture->GetHeight(), m_texture->GetFormat());
+				pkg_id, m_texture->Width(), m_texture->Height(), m_texture->Format());
 		}
 	}
 }
 
-Image::Image(const std::shared_ptr<Texture>& tex)
+Image::Image(const std::shared_ptr<pt2::Texture>& tex)
 	: m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
 	, m_texture(tex)
 {
@@ -51,9 +50,9 @@ Image::~Image()
 {
 	--ALL_IMG_COUNT;
 
-	if (m_texture->GetTexID() != 0) {
+	if (m_texture->TexID() != 0) {
 		st::StatImages::Instance()->Remove(
-			m_pkg_id, m_texture->GetWidth(), m_texture->GetHeight(), m_texture->GetFormat());
+			m_pkg_id, m_texture->Width(), m_texture->Height(), m_texture->Format());
 	}
 }
 
@@ -70,14 +69,14 @@ bool Image::LoadFromFile(const std::string& filepath)
 
 	LoadFromLoader(loader);
 	st::StatImages::Instance()->Add(
-		m_pkg_id, m_texture->GetWidth(), m_texture->GetHeight(), m_texture->GetFormat());
+		m_pkg_id, m_texture->Width(), m_texture->Height(), m_texture->Format());
 
 	return true;
 }
 
 //void Image::AsyncLoad(int pkg_id, int format, int width, int height)
 //{
-//	if (m_texture->GetTexID() != 0) {
+//	if (m_texture->TexID() != 0) {
 //		return;
 //	}
 //
@@ -91,17 +90,17 @@ bool Image::LoadFromFile(const std::string& filepath)
 
 uint16_t Image::GetWidth() const
 {
-	return m_texture->GetWidth();
+	return m_texture->Width();
 }
 
 uint16_t Image::GetHeight() const
 {
-	return m_texture->GetHeight();
+	return m_texture->Height();
 }
 
 uint32_t Image::GetTexID() const
 {
-	return m_texture->GetTexID();
+	return m_texture->TexID();
 }
 
 bool Image::IsLoadFinished() const
@@ -127,7 +126,8 @@ void Image::LoadFromLoader(const ImageLoader& loader)
 	auto width  = loader.GetWidth();
 	auto height = loader.GetHeight();
 
-	m_texture->Init(width, height, id, format);
+	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
+	m_texture->Init(&rc, width, height, id, format);
 	m_texture->InitOri(width, height);
 }
 

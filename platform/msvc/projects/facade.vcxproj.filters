@@ -7,7 +7,6 @@
     <ClCompile Include="..\..\..\source\ImageLoader.cpp" />
     <ClCompile Include="..\..\..\source\RenderContext.cpp" />
     <ClCompile Include="..\..\..\source\ResPool.cpp" />
-    <ClCompile Include="..\..\..\source\Texture.cpp" />
     <ClCompile Include="..\..\..\source\GTxt.cpp">
       <Filter>3rd</Filter>
     </ClCompile>
@@ -25,7 +24,6 @@
     <ClInclude Include="..\..\..\include\facade\ImageLoader.h" />
     <ClInclude Include="..\..\..\include\facade\RenderContext.h" />
     <ClInclude Include="..\..\..\include\facade\ResPool.h" />
-    <ClInclude Include="..\..\..\include\facade\Texture.h" />
     <ClInclude Include="..\..\..\include\facade\GTxt.h">
       <Filter>3rd</Filter>
     </ClInclude>
