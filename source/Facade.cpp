@@ -10,17 +10,6 @@
 #include <painting2/RenderColorCommon.h>
 #include <node2/AABBSystem.h>
 
-namespace
-{
-
-template<typename T>
-sm::rect get_bounding(const T& data)
-{
-	return n2::AABBSystem::GetBounding(data);
-}
-
-}
-
 namespace facade
 {
 
@@ -44,7 +33,7 @@ void Facade::Init()
 	// pt2
 	pt2::Callback::Funs pt2_cb;
 	pt2_cb.draw_text = [](
-		const std::string& text, const pt2::Textbox& style, 
+		const std::string& text, const pt2::Textbox& style,
 		const sm::Matrix2D& mat, const pt2::Color& mul_col, const pt2::Color& add_col) {
 		GTxt::Draw(text, style, mat, mul_col, add_col, 0, false);
 	};
