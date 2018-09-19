@@ -6,6 +6,7 @@
 #include <emitter/GlobalClock.h>
 #include <anim/GlobalClock.h>
 #include <model/GlobalClock.h>
+#include <painting0/GlobalClock.h>
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
 #include <node2/AABBSystem.h>
@@ -52,6 +53,7 @@ void Facade::Update(float dt)
 		cb(dt);
 	}
 
+	pt0::GlobalClock::Instance()->Update(dt);
 	et::GlobalClock::Instance()->Update(dt);
 	anim::GlobalClock::Instance()->Update(dt);
 	model::GlobalClock::Instance()->Update(dt);
