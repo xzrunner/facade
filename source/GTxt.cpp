@@ -65,7 +65,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 		pt2::Color multi_col = *rp->mul;
 		multi_col.a = static_cast<int>(multi_col.a * ds->alpha);
 		col_common.mul = multi_col;
-	} 
+	}
 	if (rp->add) {
 		col_common.add = *rp->add;
 	}
@@ -84,7 +84,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 	}
 }
 
-void 
+void
 render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const gtxt_draw_style* ds)
 {
 	const gtxt_decoration* d = &ds->decoration;
@@ -101,7 +101,7 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 		hh = h * 0.5f;
 	if (d->type == GRDT_OVERLINE || d->type == GRDT_UNDERLINE || d->type == GRDT_STRIKETHROUGH) {
 		sm::vec2 left(x - hw, y), right(x + hw, y);
-		switch (d->type) 
+		switch (d->type)
 		{
 		case GRDT_OVERLINE:
 			left.y = right.y = ds->row_y + ds->row_h;
@@ -115,7 +115,7 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 		}
 		pt2::PrimitiveDraw::Line(nullptr, mat * left, mat * right);
 	} else if (d->type == GRDT_BORDER || d->type == GRDT_BG) {
-		sm::vec2 min(x - hw, ds->row_y), 
+		sm::vec2 min(x - hw, ds->row_y),
 			max(x + hw, ds->row_y + ds->row_h);
 		min = mat * min;
 		max = mat * max;
@@ -134,8 +134,8 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 	}
 }
 
-void 
-render(int id, const float* texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, void* ud) 
+void
+render(int id, const float* texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, void* ud)
 {
 	render_params* rp = (render_params*)ud;
 	if (ds) {
@@ -155,7 +155,7 @@ render(int id, const float* texcoords, float x, float y, float w, float h, const
 	}
 }
 
-bool 
+bool
 has_rotated_gradient_color(const gtxt_glyph_color& col)
 {
 	return (col.mode_type == 1 && fabs(col.mode.TWO.angle) > FLT_EPSILON)
@@ -164,8 +164,8 @@ has_rotated_gradient_color(const gtxt_glyph_color& col)
 
 void
 draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
-		   const gtxt_glyph_style* gs, const gtxt_draw_style* ds, void* ud) 
-{	
+		   const gtxt_glyph_style* gs, const gtxt_draw_style* ds, void* ud)
+{
 	int tex_id, block_id;
 	int ft_count = gtxt_ft_get_font_cout();
 
@@ -188,32 +188,26 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 		texcoords = dtex->QuerySymbol(uid, tex_id, block_id);
 	}
 
-	if (texcoords) 
+	if (texcoords)
 	{
 		render(tex_id, texcoords, x, y, w, h, ds, ud);
-	} 
-	else 
+	}
+	else
 	{
-		if (gs->font < ft_count) 
+		if (gs->font < ft_count)
 		{
 			float texcoords[8];
 			if (exist && dtex->QueryGlyph(uid, texcoords, tex_id))
 			{
 				render(tex_id, texcoords, x, y, w, h, ds, ud);
-			} 
-			else 
-			{
-				struct gtxt_glyph_layout layout;
-				uint32_t* bmp = gtxt_glyph_get_bitmap(unicode, line_x, gs, &layout);
-				if (!bmp) {
-					return;
-				}
-				w = layout.sizer.width;
-				h = layout.sizer.height;
-				dtex->LoadGlyph(bmp, static_cast<int>(w), static_cast<int>(h), uid);
 			}
-		} 
-		else 
+			else
+			{
+				auto gtxt = facade::GTxt::Instance();
+				gtxt->AddLoadingGlyph(uid, unicode, line_x, *gs);
+			}
+		}
+		else
 		{
 			int uf_font = gs->font - ft_count;
 //			dtex->DrawUFChar(unicode, uf_font, x, y, ud);
@@ -258,7 +252,7 @@ ext_sym_release(void* ext_sym) {
 	}
 }
 
-void 
+void
 ext_sym_get_size(void* ext_sym, int* width, int* height) {
 	if (!ext_sym) {
 		*width= *height = 0;
@@ -352,7 +346,7 @@ CU_SINGLETON_DEFINITION(GTxt)
 int GTxt::m_cap_bitmap = 50;
 int GTxt::m_cap_layout = 500;
 
-GTxt::GTxt() 
+GTxt::GTxt()
 {
 	gtxt_label_cb_init(draw_glyph);
 
@@ -363,7 +357,7 @@ GTxt::GTxt()
 	gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
 }
 
-void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat, 
+void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
 	            const pt2::Color& mul, const pt2::Color& add, int time, bool richtext)
 {
 	gtxt_label_style gtxt_style;
@@ -401,6 +395,35 @@ void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fon
 	for (auto& pair : user_fonts) {
 		LoadUserFont(pair.first, pair.second);
 	}
+}
+
+void GTxt::AddLoadingGlyph(sx::UID uid, int unicode, float line_x, const gtxt_glyph_style& gs)
+{
+	auto itr = m_loading_list.find(uid);
+	if (itr != m_loading_list.end()) {
+		return;
+	}
+
+	m_loading_list.insert({ uid, {unicode, line_x, gs} });
+}
+
+void GTxt::Flush()
+{
+	auto dtex = facade::DTex::Instance();
+	for (auto& itr : m_loading_list)
+	{
+		auto& g = itr.second;
+
+		struct gtxt_glyph_layout layout;
+		uint32_t* bmp = gtxt_glyph_get_bitmap(g.unicode, g.line_x, &g.gs, &layout);
+		if (!bmp) {
+			continue;
+		}
+		int w = static_cast<int>(layout.sizer.width);
+		int h = static_cast<int>(layout.sizer.height);
+		dtex->LoadGlyph(bmp, w, h, itr.first);
+	}
+	m_loading_list.clear();
 }
 
 void GTxt::LoadFont(const std::string& name, const std::string& filepath)

@@ -13,6 +13,7 @@ class Facade
 public:
 	void Init();
 	void Update(float dt);
+	void Flush();
 
 	void AddInitCB(std::function<void()> cb) {
 		m_init_cb.push_back(cb);

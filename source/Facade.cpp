@@ -59,4 +59,10 @@ void Facade::Update(float dt)
 	model::GlobalClock::Instance()->Update(dt);
 }
 
+void Facade::Flush()
+{
+	GTxt::Instance()->Flush();
+	DTex::Instance()->Flush();
+}
+
 }
