@@ -12,13 +12,10 @@
 #include <sx/ResourceUID.h>
 #include <sx/GlyphStyle.h>
 #include <cpputil/StringHelper.h>
-#include <shaderlab/RenderContext.h>
-#include <shaderlab/FilterShader.h>
-#include <shaderlab/Sprite2Shader.h>
-#include <shaderlab/Shape2Shader.h>
 #include <painting2/RenderColorCommon.h>
 #include <painting2/PrimitiveDraw.h>
 #include <painting2/Text.h>
+#include <painting2/RenderSystem.h>
 #include <node0/SceneNode.h>
 #include <node0/CompAsset.h>
 #include <node2/CompBoundingBox.h>
@@ -71,18 +68,8 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 		col_common.add = *rp->add;
 	}
 
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
-	if (shader_mgr.GetShaderType() == sl::FILTER) {
-		auto shader = static_cast<sl::FilterShader*>(shader_mgr.GetShader());
-		shader->SetColor(col_common.mul.ToABGR(), col_common.add.ToABGR());
-		shader->Draw(&vertices[0].x, &texcoords[0].x, id);
-	} else {
-		shader_mgr.SetShader(sl::SPRITE2);
-	 	auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader());
-		shader->SetColor(col_common.mul.ToABGR(), col_common.add.ToABGR());
-		shader->SetColorMap(0x000000ff, 0x0000ff00, 0x00ff0000);
-		shader->DrawQuad(&vertices[0].x, &texcoords[0].x, id);
-	}
+	// todo: gray text with filter shader
+	pt2::RenderSystem::DrawTexQuad(&vertices[0].x, &texcoords[0].x, id, 0xffffffff);
 }
 
 void
@@ -93,13 +80,8 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 		return;
 	}
 
-	auto& shader_mgr = facade::Blackboard::Instance()->GetRenderContext()->GetSlRc().GetShaderMgr();
-	shader_mgr.SetShader(sl::SHAPE2);
-	auto shader = static_cast<sl::Shape2Shader*>(shader_mgr.GetShader());
-	shader->SetColor(d->color);
-
 	float hw = w * 0.5f,
-		hh = h * 0.5f;
+		  hh = h * 0.5f;
 	if (d->type == GRDT_OVERLINE || d->type == GRDT_UNDERLINE || d->type == GRDT_STRIKETHROUGH) {
 		sm::vec2 left(x - hw, y), right(x + hw, y);
 		switch (d->type)

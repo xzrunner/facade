@@ -11,6 +11,7 @@
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
 #include <node2/AABBSystem.h>
+#include <rendergraph/Callback.h>
 
 namespace facade
 {
@@ -55,6 +56,19 @@ void Facade::Init()
 		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
 	};
 	pt2::Callback::RegisterCallback(pt2_cb);
+
+	// rendergraph
+	rg::Callback::Funs rg_cb;
+	rg_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, int& out_tex_id)->const float* {
+		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
+		int block_id;
+		return DTex::Instance()->QuerySymbol(uid, out_tex_id, block_id);
+	};
+	rg_cb.add_cache_symbol = [](size_t tex_id, int tex_w, int tex_h, const sm::irect& r) {
+		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
+		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
+	};
+	rg::Callback::RegisterCallback(rg_cb);
 }
 
 void Facade::Update(float dt)
