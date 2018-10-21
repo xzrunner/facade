@@ -2,6 +2,7 @@
 #include "facade/DTex.h"
 #include "facade/Blackboard.h"
 #include "facade/RenderContext.h"
+#include "facade/LoadingList.h"
 
 #include <node2/predef.h>
 #include N2_MAT_HEADER
@@ -204,7 +205,7 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 			else
 			{
 				auto gtxt = facade::GTxt::Instance();
-				gtxt->AddLoadingGlyph(uid, unicode, line_x, *gs);
+				facade::LoadingList::Instance()->AddGlyph(uid, unicode, line_x, *gs);
 			}
 		}
 		else
@@ -395,35 +396,6 @@ void GTxt::LoadFonts(const std::vector<std::pair<std::string, std::string>>& fon
 	for (auto& pair : user_fonts) {
 		LoadUserFont(pair.first, pair.second);
 	}
-}
-
-void GTxt::AddLoadingGlyph(sx::UID uid, int unicode, float line_x, const gtxt_glyph_style& gs)
-{
-	auto itr = m_loading_list.find(uid);
-	if (itr != m_loading_list.end()) {
-		return;
-	}
-
-	m_loading_list.insert({ uid, {unicode, line_x, gs} });
-}
-
-void GTxt::Flush()
-{
-	auto dtex = facade::DTex::Instance();
-	for (auto& itr : m_loading_list)
-	{
-		auto& g = itr.second;
-
-		struct gtxt_glyph_layout layout;
-		uint32_t* bmp = gtxt_glyph_get_bitmap(g.unicode, g.line_x, &g.gs, &layout);
-		if (!bmp) {
-			continue;
-		}
-		int w = static_cast<int>(layout.sizer.width);
-		int h = static_cast<int>(layout.sizer.height);
-		dtex->LoadGlyph(bmp, w, h, itr.first);
-	}
-	m_loading_list.clear();
 }
 
 void GTxt::LoadFont(const std::string& name, const std::string& filepath)

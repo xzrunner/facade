@@ -17,7 +17,7 @@ public:
 
 	// C2, cache GameObj
 	void LoadSymStart();
-	void LoadSymbol(sx::UID sym_id, int tex_id, int tex_w, int tex_h, const sm::i16_rect& region,
+	void LoadSymbol(sx::UID sym_id, int tex_id, int tex_w, int tex_h, const sm::irect& region,
 		int padding = 0, int extrude = 0, int src_extrude = 0);
 	void LoadSymFinish();
 	const float* QuerySymbol(sx::UID sym_id, int& tex_id, int& block_id) const;

@@ -513,7 +513,7 @@ void DTex::LoadSymStart()
 	m_c2->LoadStart();
 }
 
-void DTex::LoadSymbol(sx::UID sym_id, int tex_id, int tex_w, int tex_h, const sm::i16_rect& region,
+void DTex::LoadSymbol(sx::UID sym_id, int tex_id, int tex_w, int tex_h, const sm::irect& region,
 	int padding, int extrude, int src_extrude)
 {
 	dtex::Rect r;

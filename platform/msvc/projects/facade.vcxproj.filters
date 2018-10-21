@@ -16,6 +16,7 @@
     <ClCompile Include="..\..\..\source\Multitask.cpp">
       <Filter>3rd</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\LoadingList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\facade\Blackboard.h" />
@@ -33,6 +34,7 @@
     <ClInclude Include="..\..\..\include\facade\Multitask.h">
       <Filter>3rd</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\facade\LoadingList.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\include\facade\ResPool.inl" />
