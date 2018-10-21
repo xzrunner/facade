@@ -40,7 +40,7 @@ private:
 	std::shared_ptr<ur::RenderContext>  m_ur_rc  = nullptr;
 	std::shared_ptr<sl::RenderContext>  m_sl_rc  = nullptr;
 	std::shared_ptr<pt2::RenderContext> m_pt2_rc = nullptr;
-		
+
 }; // RenderContext
 
 }

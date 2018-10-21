@@ -36,7 +36,7 @@ void (*ERROR_RELOAD)() = nullptr;
 /* draw                                                                 */
 /************************************************************************/
 
-static void 
+static void
 clear_color_part(float xmin, float ymin, float xmax, float ymax)
 {
 	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
@@ -46,7 +46,7 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
 	shader_mgr.SetShader(sl::SHAPE2);
 	auto shader = static_cast<sl::ShapeShader*>(shader_mgr.GetShader());
-	
+
 	shader->SetColor(0);
 //	shader->SetColor(0xff0000ff);
 
@@ -78,7 +78,7 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 //	dtex_gl_clear_color(0, 0, 0, 0);
 }
 
-static void 
+static void
 set_program()
 {
 	// todo
@@ -86,7 +86,7 @@ set_program()
 	shader_mgr.SetShader(sl::SPRITE2);
 }
 
-static void 
+static void
 set_blend(int mode)
 {
 	// todo
@@ -98,14 +98,14 @@ set_blend(int mode)
 
 std::stack<std::shared_ptr<pt2::WindowContext>> wc_stack;
 
-static void 
+static void
 draw_begin()
 {
-	if (DRAW_BEGIN) 
+	if (DRAW_BEGIN)
 	{
 		DRAW_BEGIN();
-	} 
-	else 
+	}
+	else
 	{
 		wc_stack.push(pt2::Blackboard::Instance()->GetWindowContext());
 		auto new_wc = std::make_shared<pt2::WindowContext>(2.0f, 2.0f, 0, 0);
@@ -120,7 +120,7 @@ draw_begin()
 	shader->SetColorMap(0x000000ff, 0x0000ff00, 0x00ff0000);
 }
 
-static void 
+static void
 draw(const float _vertices[8], const float _texcoords[8], int texid)
 {
 	sm::vec2 vertices[4], texcoords[4];
@@ -151,7 +151,7 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 	}
 }
 
-static void 
+static void
 draw_end()
 {
 	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
@@ -165,7 +165,7 @@ draw_end()
 	}
 }
 
-static void 
+static void
 draw_flush()
 {
 	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
@@ -182,21 +182,21 @@ scissor_push(int x, int y, int w, int h)
 	scissor.Push(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), false, true);
 }
 
-static void 
+static void
 scissor_pop()
 {
 	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
 	scissor.Pop();
 }
 
-static void 
+static void
 scissor_disable()
 {
 	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
 	scissor.Disable();
 }
 
-static void 
+static void
 scissor_enable()
 {
 	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
@@ -216,7 +216,7 @@ scissor_enable()
 //}
 //
 //static void
-//get_tex_filepath(int pkg_id, int tex_idx, int lod_layer, char* buf) 
+//get_tex_filepath(int pkg_id, int tex_idx, int lod_layer, char* buf)
 //{
 //	const timp::Package* pkg = timp::PkgMgr::Instance()->Query(pkg_id);
 //	assert(pkg);
@@ -250,7 +250,7 @@ scissor_enable()
 //
 //}; // FileLoader
 //
-//static void 
+//static void
 //load_file(const void* res_path, bool use_cache, void (*parser_cb)(const void* data, size_t size, void* ud), void* ud)
 //{
 //	bimp::FilePath file_path;
@@ -266,13 +266,13 @@ scissor_enable()
 //	}
 //}
 //
-//static void 
-//load_texture(int pkg_id, int tex_idx, int lod) 
+//static void
+//load_texture(int pkg_id, int tex_idx, int lod)
 //{
 //	const timp::Package* t_pkg = timp::PkgMgr::Instance()->Query(pkg_id);
 //	assert(t_pkg);
 //	const bimp::FilePath& filepath = t_pkg->GetTexPath(tex_idx, lod);
-//	
+//
 //	s2loader::ImageLoader loader(filepath);
 //	bool ret = loader.Load();
 //	if (!ret) {
@@ -290,8 +290,8 @@ scissor_enable()
 //	s2::StatImages::Instance()->Add(pkg_id, loader.GetWidth(), loader.GetHeight(), loader.GetFormat());
 //}
 //
-//static void 
-//load_texture_cb(int pkg_id, int tex_idx, void (*cb)(int format, int w, int h, const void* data, void* ud), void* ud) 
+//static void
+//load_texture_cb(int pkg_id, int tex_idx, void (*cb)(int format, int w, int h, const void* data, void* ud), void* ud)
 //{
 //	const timp::Package* t_pkg = timp::PkgMgr::Instance()->Query(pkg_id);
 //	assert(t_pkg);
@@ -314,8 +314,8 @@ scissor_enable()
 //	}
 //}
 //
-//static void 
-//load_texture_cb2(const void* data, size_t size, void (*cb)(int format, int w, int h, const void* data, void* ud), void* ud) 
+//static void
+//load_texture_cb2(const void* data, size_t size, void (*cb)(int format, int w, int h, const void* data, void* ud), void* ud)
 //{
 //	timp::TextureLoader loader(static_cast<const char*>(data), size);
 //	loader.Load();
@@ -323,7 +323,7 @@ scissor_enable()
 //	cb(loader.GetFormat(), loader.GetWidth(), loader.GetHeight(), loader.GetData(), ud);
 //}
 //
-//static void 
+//static void
 //cache_pkg_static_tex_ok()
 //{
 //	DTex::Instance()->SetC2Enable(true);
@@ -407,37 +407,37 @@ stat_tex_remove(int width, int height, int format)
 //	ImagePool::Instance()->Delete(res_path);
 //}
 //
-//static void 
+//static void
 //on_clear_sym_block(int block_id)
 //{
 //	SymbolPool::Instance()->Traverse(
-//		[=](const s2::SymPtr& sym)->bool 
+//		[=](const s2::SymPtr& sym)->bool
 //		{
 //			if (sym->Type() == s2::SYM_IMAGE) {
 //				S2_VI_PTR_DOWN_CAST<ImageSymbol>(sym)->SetCacheDirty(block_id);
-//			}			
+//			}
 //			return true;
 //		}
-//	);	
+//	);
 //}
 
 /************************************************************************/
 /* Glyph                                                                */
 /************************************************************************/
 
-static void 
+static void
 glyph_load_start()
 {
 	facade::DTex::Instance()->LoadSymStart();
 }
 
-static void 
+static void
 glyph_load(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint64_t key)
 {
 	facade::DTex::Instance()->DrawGlyph(tex_id, tex_w, tex_h, r, key);
 }
 
-static void 
+static void
 glyph_load_finish()
 {
 	facade::DTex::Instance()->LoadSymFinish();
@@ -581,7 +581,7 @@ void DTex::Flush()
 
 void DTex::DebugDraw() const
 {
-	// 	const CU_MAP<CU_STR, dtex::Cache*>& caches 
+	// 	const CU_MAP<CU_STR, dtex::Cache*>& caches
 	// 		= dtex::CacheMgr::Instance()->FetchAll();
 	// 	CU_MAP<CU_STR, dtex::Cache*>::const_iterator itr = caches.begin();
 	// 	for ( ; itr != caches.end(); ++itr) {

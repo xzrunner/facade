@@ -10,7 +10,7 @@
 namespace facade
 {
 
-RenderContext::RenderContext() 
+RenderContext::RenderContext()
 {
 	int max_texture;
 #ifdef EASY_EDITOR
@@ -20,7 +20,7 @@ RenderContext::RenderContext()
 #endif // S2_EDITOR
 	auto ur_rc = std::make_shared<ur::gl::RenderContext>(max_texture);
 	ur::Blackboard::Instance()->SetRenderContext(ur_rc);
-	
+
 	m_sl_rc = std::make_shared<sl::RenderContext>();
 	sl::Blackboard::Instance()->SetRenderContext(m_sl_rc);
 

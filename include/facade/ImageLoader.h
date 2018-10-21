@@ -30,7 +30,7 @@ private:
 	//bool DecodePVR2(const void* data);
 	//bool DecodePVR4(const void* data);
 	//bool DecodeETC2(const void* data);
-	
+
 	static void LoadTextureCB(int format, int w, int h, const void* data, void* ud);
 
 private:
