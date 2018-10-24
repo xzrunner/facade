@@ -9,16 +9,13 @@
 #include <dtex2/CacheMgr.h>
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
-#include <shaderlab/Blackboard.h>
-#include <shaderlab/RenderContext.h>
-#include <shaderlab/ShaderMgr.h>
-#include <shaderlab/ShapeShader.h>
-#include <shaderlab/Sprite2Shader.h>
-#include <shaderlab/FilterShader.h>
+#include <rendergraph/RenderMgr.h>
+#include <rendergraph/SpriteRenderer.h>
 #include <painting2/Blackboard.h>
 #include <painting2/WindowContext.h>
-#include <painting2/PrimitiveDraw.h>
 #include <painting2/RenderContext.h>
+#include <painting2/Shader.h>
+#include <tessellation/Painter.h>
 #include <stat/StatImages.h>
 
 #include <stack>
@@ -43,13 +40,6 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 	ur_rc.EnableBlend(false);
 //	glBlendFunc(GL_ONE, GL_ZERO);
 
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	shader_mgr.SetShader(sl::SHAPE2);
-	auto shader = static_cast<sl::ShapeShader*>(shader_mgr.GetShader());
-
-	shader->SetColor(0);
-//	shader->SetColor(0xff0000ff);
-
 	auto& wc = pt2::Blackboard::Instance()->GetWindowContext();
 	int w = wc->GetScreenWidth(),
 		h = wc->GetScreenHeight();
@@ -65,10 +55,11 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 	triangles[2].Set(xmax, ymin);
 	triangles[3].Set(xmax, ymax);
 
-	pt2::PrimitiveDraw::TriangleStrip(nullptr, triangles);
+	tess::Painter pt;
+	pt.AddRectFilled(sm::vec2(xmin, xmax), sm::vec2(xmax, ymax), 0, 0);
 
-	shader->Commit();
-// 	ShaderLab::Instance()->Flush();
+	auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+	std::static_pointer_cast<rg::SpriteRenderer>(sr)->DrawPainter(pt, sm::mat4());
 
 //	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	ur_rc.EnableBlend(true);
@@ -82,8 +73,7 @@ static void
 set_program()
 {
 	// todo
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	shader_mgr.SetShader(sl::SPRITE2);
+	rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
 }
 
 static void
@@ -101,6 +91,8 @@ std::stack<std::shared_ptr<pt2::WindowContext>> wc_stack;
 static void
 draw_begin()
 {
+	rg::RenderMgr::Instance()->Flush();
+
 	if (DRAW_BEGIN)
 	{
 		DRAW_BEGIN();
@@ -111,13 +103,16 @@ draw_begin()
 		auto new_wc = std::make_shared<pt2::WindowContext>(2.0f, 2.0f, 0, 0);
 		new_wc->Bind();
 		wc_stack.push(new_wc);
-	}
 
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	shader_mgr.SetShader(sl::SPRITE2);
-	auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader());
-	shader->SetColor(0xffffffff, 0);
-	shader->SetColorMap(0x000000ff, 0x0000ff00, 0x00ff0000);
+		// fixme:
+		// curr shader not connect to the new wnd_ctx
+		// should update its matrix manually
+		auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+		auto shader = std::static_pointer_cast<rg::SpriteRenderer>(sr)->GetShader();
+		std::static_pointer_cast<pt2::Shader>(shader)->UpdateProjMat(2, 2);
+		std::static_pointer_cast<pt2::Shader>(shader)->UpdateViewMat(sm::vec2(0, 0), 1);
+		//shader->SetMat4("u_model", sm::mat4().x);
+	}
 }
 
 static void
@@ -131,31 +126,14 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 		texcoords[i].y = _texcoords[i * 2 + 1];
 	}
 
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	switch (shader_mgr.GetShaderType())
-	{
-	case sl::SPRITE2:
-		{
-			auto shader = static_cast<sl::Sprite2Shader*>(shader_mgr.GetShader());
-			shader->DrawQuad(&vertices[0].x, &texcoords[0].x, texid);
-		}
-		break;
-	case sl::FILTER:
-		{
-			auto shader = static_cast<sl::FilterShader*>(shader_mgr.GetShader());
-			shader->Draw(&vertices[0].x, &texcoords[0].x, texid);
-		}
-		break;
-	default:
-		break;
-	}
+	auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+	std::static_pointer_cast<rg::SpriteRenderer>(sr)->DrawQuad(&vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
 }
 
 static void
 draw_end()
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	shader_mgr.FlushShader();
+	rg::RenderMgr::Instance()->Flush();
 
 	if (DRAW_END) {
 		DRAW_END();
@@ -168,11 +146,7 @@ draw_end()
 static void
 draw_flush()
 {
-	auto& shader_mgr = sl::Blackboard::Instance()->GetRenderContext().GetShaderMgr();
-	auto shader = shader_mgr.GetShader();
-	if (shader) {
-		shader->Commit();
-	}
+	rg::RenderMgr::Instance()->Flush();
 }
 
 static void
@@ -466,7 +440,6 @@ DTex::DTex()
 	render_cb.draw_begin       = draw_begin;
 	render_cb.draw             = draw;
 	render_cb.draw_end         = draw_end;
-	render_cb.draw_flush       = draw_flush;
 	render_cb.scissor_push     = scissor_push;
 	render_cb.scissor_pop      = scissor_pop;
 	render_cb.scissor_disable  = scissor_disable;

@@ -6,10 +6,8 @@
 #include <gimg_etc2.h>
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
-#include <shaderlab/Blackboard.h>
-#include <shaderlab/ShaderMgr.h>
-#include <shaderlab/RenderContext.h>
 #include <fs_file.h>
+#include <guard/check.h>
 
 #include <boost/filesystem.hpp>
 
