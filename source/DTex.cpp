@@ -59,7 +59,7 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 	pt.AddRectFilled(sm::vec2(xmin, xmax), sm::vec2(xmax, ymax), 0, 0);
 
 	auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-	std::static_pointer_cast<rg::SpriteRenderer>(sr)->DrawPainter(pt, sm::mat4());
+	std::static_pointer_cast<rg::SpriteRenderer>(sr)->DrawPainter(pt);
 
 //	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	ur_rc.EnableBlend(true);

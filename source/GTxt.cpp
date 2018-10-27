@@ -12,8 +12,9 @@
 #include <sx/ResourceUID.h>
 #include <sx/GlyphStyle.h>
 #include <cpputil/StringHelper.h>
+#include <tessellation/Painter.h>
+#include <painting2/RenderSystem.h>
 #include <painting2/RenderColorCommon.h>
-#include <painting2/PrimitiveDraw.h>
 #include <painting2/Text.h>
 #include <painting2/RenderSystem.h>
 #include <node0/SceneNode.h>
@@ -80,8 +81,11 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 		return;
 	}
 
+	tess::Painter pt;
+
 	float hw = w * 0.5f,
 		  hh = h * 0.5f;
+	const uint32_t col = 0xffffffff;
 	if (d->type == GRDT_OVERLINE || d->type == GRDT_UNDERLINE || d->type == GRDT_STRIKETHROUGH) {
 		sm::vec2 left(x - hw, y), right(x + hw, y);
 		switch (d->type)
@@ -96,25 +100,27 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 			left.y = right.y = ds->row_y + ds->row_h * 0.5f;
 			break;
 		}
-		pt2::PrimitiveDraw::Line(nullptr, mat * left, mat * right);
+		pt.AddLine(mat * left, mat * right, col);
 	} else if (d->type == GRDT_BORDER || d->type == GRDT_BG) {
 		sm::vec2 min(x - hw, ds->row_y),
-			max(x + hw, ds->row_y + ds->row_h);
+			     max(x + hw, ds->row_y + ds->row_h);
 		min = mat * min;
 		max = mat * max;
 		if (d->type == GRDT_BG) {
-			pt2::PrimitiveDraw::Rect(nullptr, min, max, true);
+			pt.AddRectFilled(min, max, col);
 		} else if (ds->pos_type != GRPT_NULL) {
-			pt2::PrimitiveDraw::Line(nullptr, min, sm::vec2(max.x, min.y));
-			pt2::PrimitiveDraw::Line(nullptr, sm::vec2(min.x, max.y), max);
+			pt.AddLine(min, sm::vec2(max.x, min.y), col);
+			pt.AddLine(sm::vec2(min.x, max.y), max, col);
 			if (ds->pos_type == GRPT_BEGIN) {
-				pt2::PrimitiveDraw::Line(nullptr, min, sm::vec2(min.x, max.y));
+				pt.AddLine(min, sm::vec2(min.x, max.y), col);
 			}
 			if (ds->pos_type == GRPT_END) {
-				pt2::PrimitiveDraw::Line(nullptr, sm::vec2(max.x, min.y), max);
+				pt.AddLine(sm::vec2(max.x, min.y), max, col);
 			}
 		}
 	}
+
+	pt2::RenderSystem::DrawPainter(pt);
 }
 
 void
