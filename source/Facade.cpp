@@ -10,8 +10,10 @@
 #include <painting0/GlobalClock.h>
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
+#include <painting2/RenderSystem.h>
 #include <node2/AABBSystem.h>
 #include <rendergraph/Callback.h>
+#include <easygui/Callback.h>
 
 namespace facade
 {
@@ -69,6 +71,14 @@ void Facade::Init()
 		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
 	};
 	rg::Callback::RegisterCallback(rg_cb);
+
+
+	// easygui
+	egui::Callback::Funs egui_cb;
+	egui_cb.draw_painter = [](const tess::Painter& pt) {
+		pt2::RenderSystem::DrawPainter(pt);
+	};
+	egui::Callback::RegisterCallback(egui_cb);
 }
 
 void Facade::Update(float dt)

@@ -17,6 +17,9 @@
       <Filter>3rd</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\source\LoadingList.cpp" />
+    <ClCompile Include="..\..\..\source\EasyGUI.cpp">
+      <Filter>3rd</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\facade\Blackboard.h" />
@@ -35,6 +38,9 @@
       <Filter>3rd</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\facade\LoadingList.h" />
+    <ClInclude Include="..\..\..\include\facade\EasyGUI.h">
+      <Filter>3rd</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\include\facade\ResPool.inl" />
