@@ -28,10 +28,14 @@ public:
 	void LoadGlyph(uint32_t* bitmap, int width, int height, uint64_t key);
 	bool QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const;
 	bool ExistGlyph(uint64_t key) const { return m_cg->Exist(key); }
+	void GetGlyphTexInfo(int& id, size_t& w, size_t& h) const { m_cg->GetFirstPageTexInfo(id, w, h); }
+	bool QueryGlyphRegion(uint64_t key, int& tex_id, int& xmin, int& ymin, int& xmax, int& ymax) const {
+		return m_cg->QueryRegion(key, tex_id, xmin, ymin, xmax, ymax);
+	}
 
 	void Clear();
 
-	void Flush();
+	void Flush(bool cg_to_c2);
 
 	void DebugDraw() const;
 

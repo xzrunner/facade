@@ -11,6 +11,7 @@
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
 #include <painting2/RenderSystem.h>
+#include <painting2/Textbox.h>
 #include <node2/AABBSystem.h>
 #include <rendergraph/Callback.h>
 #include <easygui/Callback.h>
@@ -75,8 +76,9 @@ void Facade::Init()
 
 	// easygui
 	egui::Callback::Funs egui_cb;
-	egui_cb.draw_painter = [](const tess::Painter& pt) {
-		pt2::RenderSystem::DrawPainter(pt);
+	pt2::Textbox tb;
+	egui_cb.get_label_sz = [&tb](const char* label)->sm::vec2 {
+		return GTxt::Instance()->CalcLabelSize(label, tb);
 	};
 	egui::Callback::RegisterCallback(egui_cb);
 }
@@ -93,9 +95,9 @@ void Facade::Update(float dt)
 	model::GlobalClock::Instance()->Update(dt);
 }
 
-void Facade::Flush()
+void Facade::Flush(bool dtex_cg_to_c2)
 {
-	DTex::Instance()->Flush();
+	DTex::Instance()->Flush(dtex_cg_to_c2);
 	LoadingList::Instance()->Flush();
 }
 

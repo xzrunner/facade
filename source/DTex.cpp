@@ -547,9 +547,9 @@ void DTex::Clear()
 {
 }
 
-void DTex::Flush()
+void DTex::Flush(bool cg_to_c2)
 {
-	m_cg->Flush();
+	m_cg->Flush(cg_to_c2);
 }
 
 void DTex::DebugDraw() const

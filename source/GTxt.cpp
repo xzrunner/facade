@@ -32,9 +32,11 @@ namespace
 
 struct render_params
 {
-	const N2_MAT* mt = nullptr;
+	const N2_MAT*     mt  = nullptr;
 	const pt2::Color* mul = nullptr;
 	const pt2::Color* add = nullptr;
+	tess::Painter*    pt  = nullptr;
+	bool texcoords_relocate = true;
 };
 
 void
@@ -44,7 +46,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 	y += ds->offset_y;
 	float hw = w * 0.5f * ds->scale, hh = h * 0.5f * ds->scale;
 
-	sm::vec2 vertices[4];
+	std::array<sm::vec2, 4> vertices;
 	vertices[0] = sm::vec2(x - hw, y - hh);
 	vertices[1] = sm::vec2(x + hw, y - hh);
 	vertices[2] = sm::vec2(x + hw, y + hh);
@@ -53,7 +55,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 		vertices[i] = *rp->mt * vertices[i];
 	}
 
-	sm::vec2 texcoords[4];
+	std::array<sm::vec2, 4> texcoords;
 	texcoords[0].Set(_texcoords[0], _texcoords[1]);
 	texcoords[1].Set(_texcoords[2], _texcoords[3]);
 	texcoords[2].Set(_texcoords[4], _texcoords[5]);
@@ -70,7 +72,11 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 	}
 
 	// todo: gray text with filter shader
-	pt2::RenderSystem::DrawTexQuad(&vertices[0].x, &texcoords[0].x, id, 0xffffffff);
+	if (rp->pt) {
+		rp->pt->AddTexQuad(id, vertices, texcoords, 0xffffffff);
+	} else {
+		pt2::RenderSystem::DrawTexQuad(&vertices[0].x, &texcoords[0].x, id, 0xffffffff);
+	}
 }
 
 void
@@ -155,9 +161,6 @@ void
 draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 		   const gtxt_glyph_style* gs, const gtxt_draw_style* ds, void* ud)
 {
-	int tex_id, block_id;
-	int ft_count = gtxt_ft_get_font_cout();
-
 	float line_x = 0;
 	if (has_rotated_gradient_color(gs->font_color) ||
 		gs->edge && has_rotated_gradient_color(gs->edge_color)) {
@@ -167,39 +170,56 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 
 	auto dtex = facade::DTex::Instance();
 
-	const float* texcoords = nullptr;
-	bool exist = false;
-	if (gs->font < ft_count && !dtex->ExistGlyph(uid)) {
-		exist = false;
-		texcoords = nullptr;
-	} else {
-		exist = true;
-		texcoords = dtex->QuerySymbol(uid, tex_id, block_id);
-	}
+	render_params* rp = (render_params*)ud;
+	if (rp->texcoords_relocate)
+	{
+		int tex_id, block_id;
+		int ft_count = gtxt_ft_get_font_cout();
 
-	if (texcoords)
-	{
-		render(tex_id, texcoords, x, y, w, h, ds, ud);
-	}
-	else
-	{
-		if (gs->font < ft_count)
+		const float* texcoords = nullptr;
+		bool exist = false;
+		if (gs->font < ft_count && !dtex->ExistGlyph(uid)) {
+			exist = false;
+			texcoords = nullptr;
+		} else {
+			exist = true;
+			texcoords = dtex->QuerySymbol(uid, tex_id, block_id);
+		}
+
+		if (texcoords)
 		{
-			float texcoords[8];
-			if (exist && dtex->QueryGlyph(uid, texcoords, tex_id))
-			{
-				render(tex_id, texcoords, x, y, w, h, ds, ud);
-			}
-			else
-			{
-				auto gtxt = facade::GTxt::Instance();
-				facade::LoadingList::Instance()->AddGlyph(uid, unicode, line_x, *gs);
-			}
+			render(tex_id, texcoords, x, y, w, h, ds, ud);
 		}
 		else
 		{
-			int uf_font = gs->font - ft_count;
-//			dtex->DrawUFChar(unicode, uf_font, x, y, ud);
+			if (gs->font < ft_count)
+			{
+				float texcoords[8];
+				if (exist && dtex->QueryGlyph(uid, texcoords, tex_id))
+				{
+					render(tex_id, texcoords, x, y, w, h, ds, ud);
+				}
+				else
+				{
+					auto gtxt = facade::GTxt::Instance();
+					facade::LoadingList::Instance()->AddGlyph(uid, unicode, line_x, *gs);
+				}
+			}
+			else
+			{
+				int uf_font = gs->font - ft_count;
+	//			dtex->DrawUFChar(unicode, uf_font, x, y, ud);
+			}
+		}
+	}
+	else
+	{
+		float texcoords[8];
+		int tex_id;
+		if (dtex->QueryGlyph(uid, texcoords, tex_id)) {
+			render(tex_id, texcoords, x, y, w, h, ds, ud);
+		} else {
+			facade::LoadingList::Instance()->AddGlyph(uid, unicode, line_x, *gs);
 		}
 	}
 }
@@ -347,15 +367,17 @@ GTxt::GTxt()
 }
 
 void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
-	            const pt2::Color& mul, const pt2::Color& add, int time, bool richtext)
+	            const pt2::Color& mul, const pt2::Color& add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
 {
 	gtxt_label_style gtxt_style;
 	LoadLabelStyle(gtxt_style, style);
 
 	render_params rp;
-	rp.mt = &mat;
+	rp.mt  = &mat;
 	rp.mul = &mul;
 	rp.add = &add;
+	rp.pt  = pt;
+	rp.texcoords_relocate = texcoords_relocate;
 
 	if (richtext) {
 		gtxt_label_draw_richtext(text.c_str(), &gtxt_style, time, (void*)&rp);
