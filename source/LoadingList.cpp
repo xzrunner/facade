@@ -33,16 +33,22 @@ void LoadingList::AddSymbol(sx::UID uid, int tex_id, int tex_w, int tex_h, const
 	}
 }
 
-void LoadingList::Flush()
+bool LoadingList::Flush()
 {
-	FlushGlyphs();
-	FlushSymbols();
+	bool dirty = false;
+	if (FlushGlyphs()) {
+		dirty = true;
+	}
+	if (FlushSymbols()) {
+		dirty = true;
+	}
+	return dirty;
 }
 
-void LoadingList::FlushGlyphs()
+bool LoadingList::FlushGlyphs()
 {
 	if (m_glyphs.empty()) {
-		return;
+		return false;
 	}
 
 	auto dtex = DTex::Instance();
@@ -60,12 +66,14 @@ void LoadingList::FlushGlyphs()
 		dtex->LoadGlyph(bmp, w, h, itr.first);
 	}
 	m_glyphs.clear();
+
+	return true;
 }
 
-void LoadingList::FlushSymbols()
+bool LoadingList::FlushSymbols()
 {
 	if (m_symbols.empty()) {
-		return;
+		return false;
 	}
 
 	auto dtex = DTex::Instance();
@@ -76,6 +84,8 @@ void LoadingList::FlushSymbols()
 	}
 	dtex->LoadSymFinish();
 	m_symbols.clear();
+
+	return true;
 }
 
 }

@@ -95,10 +95,16 @@ void Facade::Update(float dt)
 	model::GlobalClock::Instance()->Update(dt);
 }
 
-void Facade::Flush(bool dtex_cg_to_c2)
+bool Facade::Flush(bool dtex_cg_to_c2)
 {
-	DTex::Instance()->Flush(dtex_cg_to_c2);
-	LoadingList::Instance()->Flush();
+	bool dirty = false;
+	if (DTex::Instance()->Flush(dtex_cg_to_c2)) {
+		dirty = true;
+	}
+	if (LoadingList::Instance()->Flush()) {
+		dirty = true;
+	}
+	return dirty;
 }
 
 }

@@ -18,11 +18,11 @@ public:
 	void AddGlyph(sx::UID uid, int unicode, float line_x, const gtxt_glyph_style& gs);
 	void AddSymbol(sx::UID uid, int tex_id, int tex_w, int tex_h, const sm::irect& region);
 
-	void Flush();
+	bool Flush();
 
 private:
-	void FlushGlyphs();
-	void FlushSymbols();
+	bool FlushGlyphs();
+	bool FlushSymbols();
 
 private:
 	struct Glyph

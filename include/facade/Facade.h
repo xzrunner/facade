@@ -13,7 +13,7 @@ class Facade
 public:
 	void Init();
 	void Update(float dt);
-	void Flush(bool dtex_cg_to_c2);
+	bool Flush(bool dtex_cg_to_c2);
 
 	void AddInitCB(std::function<void()> cb) {
 		m_init_cb.push_back(cb);

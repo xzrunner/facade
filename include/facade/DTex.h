@@ -35,7 +35,7 @@ public:
 
 	void Clear();
 
-	void Flush(bool cg_to_c2);
+	bool Flush(bool cg_to_c2);
 
 	void DebugDraw() const;
 
