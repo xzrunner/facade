@@ -47,8 +47,9 @@ bool LoadingList::Flush()
 
 bool LoadingList::FlushGlyphs()
 {
+	bool dirty = false;
 	if (m_glyphs.empty()) {
-		return false;
+		return dirty;
 	}
 
 	auto dtex = DTex::Instance();
@@ -64,10 +65,11 @@ bool LoadingList::FlushGlyphs()
 		int w = static_cast<int>(layout.sizer.width);
 		int h = static_cast<int>(layout.sizer.height);
 		dtex->LoadGlyph(bmp, w, h, itr.first);
+		dirty = true;
 	}
 	m_glyphs.clear();
 
-	return true;
+	return dirty;
 }
 
 bool LoadingList::FlushSymbols()
