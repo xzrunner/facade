@@ -77,13 +77,16 @@ set_program()
 }
 
 static void
-set_blend(int mode)
+enable_blend(bool enable)
 {
-	// todo
-	assert(0);
-
-	assert(mode == 0);
-//	ShaderMgr::Instance()->SetBlendMode(0);
+	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
+	if (enable) {
+		rc.EnableBlend(true);
+		rc.SetBlend(ur::BLEND_SRC_ALPHA, ur::BLEND_ONE_MINUS_SRC_ALPHA, false);
+	} else {
+	//	rc.SetBlend(ur::BLEND_ONE, ur::BLEND_ONE_MINUS_SRC_ALPHA, false);
+		rc.EnableBlend(false);
+	}
 }
 
 std::stack<std::shared_ptr<pt2::WindowContext>> wc_stack;
@@ -436,7 +439,7 @@ DTex::DTex()
 	dtex::RenderAPI::Callback render_cb;
 	render_cb.clear_color_part = clear_color_part;
 	render_cb.set_program      = set_program;
-	render_cb.set_blend        = set_blend;
+	render_cb.enable_blend     = enable_blend;
 	render_cb.draw_begin       = draw_begin;
 	render_cb.draw             = draw;
 	render_cb.draw_end         = draw_end;
