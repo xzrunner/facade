@@ -7,7 +7,7 @@ CU_SINGLETON_DEFINITION(EasyGUI);
 
 EasyGUI::EasyGUI()
 {
-	egui::style_colors_dark(style);
+	egui::style_colors_dark(ctx.style);
 }
 
 }
