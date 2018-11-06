@@ -18,8 +18,11 @@ RenderContext::RenderContext()
 	max_texture = 1024;
 #endif // S2_EDITOR
 
-	auto ur_rc = std::make_shared<ur::gl::RenderContext>(max_texture, [&]() {
+	auto ur_rc = std::make_shared<ur::gl::RenderContext>(max_texture, [](ur::RenderContext& ctx) 
+	{
+		ctx.EnableFlushCB(false);
 		rg::RenderMgr::Instance()->Flush();
+		ctx.EnableFlushCB(true);
 	});
 	ur::Blackboard::Instance()->SetRenderContext(ur_rc);
 

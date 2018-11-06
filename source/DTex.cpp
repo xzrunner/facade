@@ -82,9 +82,9 @@ enable_blend(bool enable)
 	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
 	if (enable) {
 		rc.EnableBlend(true);
-		rc.SetBlend(ur::BLEND_SRC_ALPHA, ur::BLEND_ONE_MINUS_SRC_ALPHA, false);
+		rc.SetBlend(ur::BLEND_SRC_ALPHA, ur::BLEND_ONE_MINUS_SRC_ALPHA);
 	} else {
-	//	rc.SetBlend(ur::BLEND_ONE, ur::BLEND_ONE_MINUS_SRC_ALPHA, false);
+	//	rc.SetBlend(ur::BLEND_ONE, ur::BLEND_ONE_MINUS_SRC_ALPHA);
 		rc.EnableBlend(false);
 	}
 }
