@@ -14,6 +14,7 @@ public:
 	void Init();
 	void Update(float dt);
 	bool Flush(bool dtex_cg_to_c2);
+	bool IsLastFrameDirty() const { return m_last_frame_dirty; }
 
 	void AddInitCB(std::function<void()> cb) {
 		m_init_cb.push_back(cb);
@@ -25,6 +26,8 @@ public:
 private:
 	std::vector<std::function<void()>>      m_init_cb;
 	std::vector<std::function<void(float)>> m_update_cb;
+
+	bool m_last_frame_dirty = false;
 
 	CU_SINGLETON_DECLARATION(Facade)
 

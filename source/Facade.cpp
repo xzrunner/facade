@@ -14,7 +14,6 @@
 #include <painting2/Textbox.h>
 #include <node2/AABBSystem.h>
 #include <rendergraph/Callback.h>
-#include <easygui/Callback.h>
 
 namespace facade
 {
@@ -72,15 +71,6 @@ void Facade::Init()
 		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
 	};
 	rg::Callback::RegisterCallback(rg_cb);
-
-
-	// easygui
-	egui::Callback::Funs egui_cb;
-	pt2::Textbox tb;
-	egui_cb.get_label_sz = [&tb](const char* label)->sm::vec2 {
-		return GTxt::Instance()->CalcLabelSize(label, tb);
-	};
-	egui::Callback::RegisterCallback(egui_cb);
 }
 
 void Facade::Update(float dt)
@@ -104,6 +94,7 @@ bool Facade::Flush(bool dtex_cg_to_c2)
 	if (LoadingList::Instance()->Flush()) {
 		dirty = true;
 	}
+	m_last_frame_dirty = dirty;
 	return dirty;
 }
 

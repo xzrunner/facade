@@ -531,6 +531,11 @@ void DTex::ClearSymbolCache()
 //	DTexC2Strategy::Instance()->Clear();
 }
 
+int DTex::GetSymCacheTexID() const
+{
+	return m_c2 ? m_c2->GetTexID() : 0;
+}
+
 void DTex::DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint64_t key)
 {
 	m_c2->Load(tex_id, tex_w, tex_h, r, key, 1, 0);
@@ -544,6 +549,21 @@ void DTex::LoadGlyph(uint32_t* bitmap, int width, int height, uint64_t key)
 bool DTex::QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const
 {
 	return m_cg->QueryAndInsert(key, texcoords, tex_id);
+}
+
+bool DTex::ExistGlyph(uint64_t key) const 
+{ 
+	return m_cg->Exist(key); 
+}
+
+void DTex::GetGlyphTexInfo(int& id, size_t& w, size_t& h) const 
+{ 
+	m_cg->GetFirstPageTexInfo(id, w, h); 
+}
+
+bool DTex::QueryGlyphRegion(uint64_t key, int& tex_id, int& xmin, int& ymin, int& xmax, int& ymax) const 
+{
+	return m_cg->QueryRegion(key, tex_id, xmin, ymin, xmax, ymax);
 }
 
 void DTex::Clear()
