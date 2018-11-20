@@ -15,6 +15,10 @@ public:
 	egui::EntityFactory factory;
 	egui::CompStorage   storage;
 
+public:
+	
+
+private:
 	CU_SINGLETON_DECLARATION(EasyGUI)
 
 }; // EasyGUI

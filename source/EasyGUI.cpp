@@ -128,7 +128,7 @@ EasyGUI::EasyGUI()
 			if (regions.back().end < static_cast<int>(buf.vertices.size() - 1)) {
 				relocate_palette(palette, buf, regions.back().end + 1, buf.vertices.size() - 1);
 			}
-		}		
+		}
 	};
 
 	egui::Callback::RegisterCallback(cb);
