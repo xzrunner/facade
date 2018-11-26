@@ -96,6 +96,11 @@ draw_begin()
 {
 	rg::RenderMgr::Instance()->Flush();
 
+	// reset for 2d
+	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	ur_rc.SetDepthTest(ur::DEPTH_DISABLE);
+	ur_rc.SetCull(ur::CULL_DISABLE);
+
 	if (DRAW_BEGIN)
 	{
 		DRAW_BEGIN();
