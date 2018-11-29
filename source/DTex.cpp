@@ -556,17 +556,17 @@ bool DTex::QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const
 	return m_cg->QueryAndInsert(key, texcoords, tex_id);
 }
 
-bool DTex::ExistGlyph(uint64_t key) const 
-{ 
-	return m_cg->Exist(key); 
+bool DTex::ExistGlyph(uint64_t key) const
+{
+	return m_cg->Exist(key);
 }
 
-void DTex::GetGlyphTexInfo(int& id, size_t& w, size_t& h) const 
-{ 
-	m_cg->GetFirstPageTexInfo(id, w, h); 
+void DTex::GetGlyphTexInfo(int& id, size_t& w, size_t& h) const
+{
+	m_cg->GetFirstPageTexInfo(id, w, h);
 }
 
-bool DTex::QueryGlyphRegion(uint64_t key, int& tex_id, int& xmin, int& ymin, int& xmax, int& ymax) const 
+bool DTex::QueryGlyphRegion(uint64_t key, int& tex_id, int& xmin, int& ymin, int& xmax, int& ymax) const
 {
 	return m_cg->QueryRegion(key, tex_id, xmin, ymin, xmax, ymax);
 }
