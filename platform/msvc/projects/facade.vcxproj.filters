@@ -3,8 +3,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\source\Blackboard.cpp" />
     <ClCompile Include="..\..\..\source\Facade.cpp" />
-    <ClCompile Include="..\..\..\source\Image.cpp" />
-    <ClCompile Include="..\..\..\source\ImageLoader.cpp" />
     <ClCompile Include="..\..\..\source\RenderContext.cpp" />
     <ClCompile Include="..\..\..\source\ResPool.cpp" />
     <ClCompile Include="..\..\..\source\GTxt.cpp">
@@ -20,12 +18,19 @@
     <ClCompile Include="..\..\..\source\EasyGUI.cpp">
       <Filter>3rd</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\Image.cpp">
+      <Filter>img</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\ImageLoader.cpp">
+      <Filter>img</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\source\Image3D.cpp">
+      <Filter>img</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\facade\Blackboard.h" />
     <ClInclude Include="..\..\..\include\facade\Facade.h" />
-    <ClInclude Include="..\..\..\include\facade\Image.h" />
-    <ClInclude Include="..\..\..\include\facade\ImageLoader.h" />
     <ClInclude Include="..\..\..\include\facade\RenderContext.h" />
     <ClInclude Include="..\..\..\include\facade\ResPool.h" />
     <ClInclude Include="..\..\..\include\facade\GTxt.h">
@@ -41,6 +46,15 @@
     <ClInclude Include="..\..\..\include\facade\EasyGUI.h">
       <Filter>3rd</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\facade\Image.h">
+      <Filter>img</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\facade\ImageLoader.h">
+      <Filter>img</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\facade\Image3D.h">
+      <Filter>img</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\include\facade\ResPool.inl" />
@@ -48,6 +62,9 @@
   <ItemGroup>
     <Filter Include="3rd">
       <UniqueIdentifier>{652da6b4-2405-423f-98ea-21571696ad78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="img">
+      <UniqueIdentifier>{e13a94ab-c10d-4e92-bdb8-9881390ede98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
