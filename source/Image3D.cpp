@@ -4,6 +4,7 @@
 #include <painting3/Texture3D.h>
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
+#include <cpputil/StringHelper.h>
 
 #include <boost/filesystem.hpp>
 
@@ -21,9 +22,17 @@ bool Image3D::LoadFromFile(const std::string& filepath)
 		return false;
 	}
 
-	int w = 256;
-	int h = 256;
-	int d = 109;
+	auto filename = boost::filesystem::path(filepath).stem().string();
+	std::vector<std::string> tokens;
+	cpputil::StringHelper::Split(filename, "_", tokens);
+	if (tokens.size() < 3) {
+		return false;
+	}
+
+	const int sz = tokens.size();
+	int w = std::stoi(tokens[sz - 3]);
+	int h = std::stoi(tokens[sz - 2]);
+	int d = std::stoi(tokens[sz - 1]);
 
 	const int n = w * h * d;
 
