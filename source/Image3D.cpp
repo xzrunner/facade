@@ -1,12 +1,10 @@
 #include "facade/Image3D.h"
 
-#include <fs_file.h>
 #include <painting3/Texture3D.h>
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
-#include <cpputil/StringHelper.h>
-
-#include <boost/filesystem.hpp>
+#include <volume/Loader.h>
+#include <volume/VolumeData.h>
 
 namespace facade
 {
@@ -18,49 +16,28 @@ Image3D::Image3D()
 
 bool Image3D::LoadFromFile(const std::string& filepath)
 {
-	if (!boost::filesystem::is_regular_file(filepath)) {
+	vol::VolumeData data;
+	if (!vol::Loader::Load(data, filepath)) {
 		return false;
 	}
 
-	auto filename = boost::filesystem::path(filepath).stem().string();
-	std::vector<std::string> tokens;
-	cpputil::StringHelper::Split(filename, "_", tokens);
-	if (tokens.size() < 3) {
-		return false;
-	}
-
-	const int sz = tokens.size();
-	int w = std::stoi(tokens[sz - 3]);
-	int h = std::stoi(tokens[sz - 2]);
-	int d = std::stoi(tokens[sz - 1]);
-
-	const int n = w * h * d;
-
-	auto alpha_buf = new unsigned char[n];
-	if (!alpha_buf) {
-		return false;
-	}
+	m_filepath = filepath;
+	
+	const int n = data.width * data.height * data.depth;
 	auto rgba_buf = new unsigned char[n * 4];
 	if (!rgba_buf) {
 		return false;
 	}
 
-	struct fs_file* file = fs_open(filepath.c_str(), "rb");
-	if (!file) {
-		return false;
-	}
-	fs_read(file, alpha_buf, n);
-	fs_close(file);
-
 	for (int i = 0; i < n; ++i) {
-		rgba_buf[i * 4 + 0] = alpha_buf[i];
-		rgba_buf[i * 4 + 1] = alpha_buf[i];
-		rgba_buf[i * 4 + 2] = alpha_buf[i];
-		rgba_buf[i * 4 + 3] = alpha_buf[i];
+		rgba_buf[i * 4 + 0] = data.buf[i];
+		rgba_buf[i * 4 + 1] = data.buf[i];
+		rgba_buf[i * 4 + 2] = data.buf[i];
+		rgba_buf[i * 4 + 3] = data.buf[i];
 	}
 
 	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
-	m_texture->Upload(&rc, 256, 256, 109, ur::TEXTURE_RGBA8, rgba_buf);
+	m_texture->Upload(&rc, data.width, data.height, data.depth, ur::TEXTURE_RGBA8, rgba_buf);
 
 	return true;
 }
