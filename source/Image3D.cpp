@@ -22,22 +22,9 @@ bool Image3D::LoadFromFile(const std::string& filepath)
 	}
 
 	m_filepath = filepath;
-	
-	const int n = data.width * data.height * data.depth;
-	auto rgba_buf = new unsigned char[n * 4];
-	if (!rgba_buf) {
-		return false;
-	}
-
-	for (int i = 0; i < n; ++i) {
-		rgba_buf[i * 4 + 0] = data.buf[i];
-		rgba_buf[i * 4 + 1] = data.buf[i];
-		rgba_buf[i * 4 + 2] = data.buf[i];
-		rgba_buf[i * 4 + 3] = data.buf[i];
-	}
 
 	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
-	m_texture->Upload(&rc, data.width, data.height, data.depth, ur::TEXTURE_RGBA8, rgba_buf);
+	m_texture->Upload(&rc, data.width, data.height, data.depth, ur::TEXTURE_RGBA8, data.rgba.get());
 
 	return true;
 }
