@@ -27,6 +27,12 @@
     <ClCompile Include="..\..\..\source\Image3D.cpp">
       <Filter>img</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\StackTrace.cpp">
+      <Filter>3rd</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\external\stackwalker\StackWalker.cpp">
+      <Filter>3rd</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\facade\Blackboard.h" />
@@ -54,6 +60,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\facade\Image3D.h">
       <Filter>img</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\facade\StackTrace.h">
+      <Filter>3rd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\external\stackwalker\StackWalker.h">
+      <Filter>3rd</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
