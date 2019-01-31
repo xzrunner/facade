@@ -9,7 +9,8 @@
 
 struct gtxt_label_style;
 
-namespace pt2 { class Color; class Textbox; }
+namespace pt0 { class Color; }
+namespace pt2 { class Textbox; }
 namespace tess { class Painter; }
 
 namespace facade
@@ -22,7 +23,7 @@ public:
 		const std::vector<std::pair<std::string, std::string>>& user_fonts);
 
 	static void Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
-		const pt2::Color& mul, const pt2::Color& add, int time, bool richtext, tess::Painter* pt = nullptr, bool texcoords_relocate = true);
+		const pt0::Color& mul, const pt0::Color& add, int time, bool richtext, tess::Painter* pt = nullptr, bool texcoords_relocate = true);
 
 	static sm::vec2 CalcLabelSize(const std::string& text, const pt2::Textbox& style);
 

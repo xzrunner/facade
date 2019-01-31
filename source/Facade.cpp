@@ -39,7 +39,7 @@ void Facade::Init()
 	pt2::Callback::Funs pt2_cb;
 	pt2_cb.draw_text = [](
 		const std::string& text, const pt2::Textbox& style,
-		const sm::Matrix2D& mat, const pt2::Color& mul_col, const pt2::Color& add_col) {
+		const sm::Matrix2D& mat, const pt0::Color& mul_col, const pt0::Color& add_col) {
 		GTxt::Draw(text, style, mat, mul_col, add_col, 0, false);
 	};
 	pt2_cb.calc_label_size = [](const std::string& text, const pt2::Textbox& style)->sm::vec2 {

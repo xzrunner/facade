@@ -65,10 +65,10 @@ EasyGUI::EasyGUI()
 		float dy = len * sin(angle);
 		mat.Translate(pos.x + dx, pos.y + dy);
 
-		pt2::Color col;
+		pt0::Color col;
 		col.FromABGR(color);
 
-		GTxt::Instance()->Draw(label, TEXTBOX, mat, col, pt2::Color(0, 0, 0), 0, false, &pt, true);
+		GTxt::Instance()->Draw(label, TEXTBOX, mat, col, pt0::Color(0, 0, 0), 0, false, &pt, true);
 	};
 	cb.relocate_texcoords = [](tess::Painter& pt)
 	{

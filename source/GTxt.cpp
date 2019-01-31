@@ -33,8 +33,8 @@ namespace
 struct render_params
 {
 	const N2_MAT*     mt  = nullptr;
-	const pt2::Color* mul = nullptr;
-	const pt2::Color* add = nullptr;
+	const pt0::Color* mul = nullptr;
+	const pt0::Color* add = nullptr;
 	tess::Painter*    pt  = nullptr;
 	bool texcoords_relocate = true;
 };
@@ -63,7 +63,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 
 	pt2::RenderColorCommon col_common;
 	if (rp->mul) {
-		pt2::Color multi_col = *rp->mul;
+		pt0::Color multi_col = *rp->mul;
 		multi_col.a = static_cast<int>(multi_col.a * ds->alpha);
 		col_common.mul = multi_col;
 	}
@@ -367,7 +367,7 @@ GTxt::GTxt()
 }
 
 void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
-	            const pt2::Color& mul, const pt2::Color& add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
+	            const pt0::Color& mul, const pt0::Color& add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
 {
 	gtxt_label_style gtxt_style;
 	LoadLabelStyle(gtxt_style, style);
