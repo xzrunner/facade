@@ -12,6 +12,7 @@
 #include <painting2/RenderColorCommon.h>
 #include <painting2/RenderSystem.h>
 #include <painting2/Textbox.h>
+#include <painting3/Painting3.h>
 #include <node2/AABBSystem.h>
 #include <rendergraph/Callback.h>
 
@@ -58,6 +59,9 @@ void Facade::Init()
 		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
 	};
 	pt2::Callback::RegisterCallback(pt2_cb);
+
+    // pt3
+    pt3::Painting3::Init();
 
 	// rendergraph
 	rg::Callback::Funs rg_cb;
