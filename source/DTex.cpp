@@ -58,8 +58,8 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 	tess::Painter pt;
 	pt.AddRectFilled(sm::vec2(xmin, xmax), sm::vec2(xmax, ymax), 0, 0);
 
-	auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-	std::static_pointer_cast<rg::SpriteRenderer>(sr)->DrawPainter(pt);
+	auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+	std::static_pointer_cast<rg::SpriteRenderer>(rd)->DrawPainter(pt);
 
 //	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	ur_rc.EnableBlend(true);
@@ -115,8 +115,8 @@ draw_begin()
 		// fixme:
 		// curr shader not connect to the new wnd_ctx
 		// should update its matrix manually
-		auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-		auto shader = std::static_pointer_cast<rg::SpriteRenderer>(sr)->GetShader();
+		auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+		auto shader = std::static_pointer_cast<rg::SpriteRenderer>(rd)->GetShader();
 		std::static_pointer_cast<pt2::Shader>(shader)->UpdateProjMat(2, 2);
 		std::static_pointer_cast<pt2::Shader>(shader)->UpdateViewMat(sm::vec2(0, 0), 1);
 		//shader->SetMat4("u_model", sm::mat4().x);
@@ -135,8 +135,8 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 		texcoords[i].y = _texcoords[i * 2 + 1];
 	}
 
-	auto sr = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-	std::static_pointer_cast<rg::SpriteRenderer>(sr)->DrawQuad(&vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
+	auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+	std::static_pointer_cast<rg::SpriteRenderer>(rd)->DrawQuad(&vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
 }
 
 static void
