@@ -116,7 +116,7 @@ draw_begin()
 		// curr shader not connect to the new wnd_ctx
 		// should update its matrix manually
 		auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-		auto shader = std::static_pointer_cast<rg::SpriteRenderer>(rd)->GetShader();
+		auto shader = std::static_pointer_cast<rg::SpriteRenderer>(rd)->GetAllShaders()[0];
 		std::static_pointer_cast<pt2::Shader>(shader)->UpdateProjMat(2, 2);
 		std::static_pointer_cast<pt2::Shader>(shader)->UpdateViewMat(sm::vec2(0, 0), 1);
 		//shader->SetMat4("u_model", sm::mat4().x);
