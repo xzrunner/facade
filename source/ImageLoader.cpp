@@ -101,6 +101,9 @@ bool ImageLoader::LoadRaw()
 	case GPF_BGR_EXT:
 		tf = ur::TEXTURE_BGR_EXT;
 		break;
+    case GPF_RGB32F:
+        tf = ur::TEXTURE_RGB32F;
+        break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
 		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 		break;
