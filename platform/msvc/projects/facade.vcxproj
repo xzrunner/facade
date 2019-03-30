@@ -19,6 +19,7 @@
     <ClInclude Include="..\..\..\include\facade\GTxt.h" />
     <ClInclude Include="..\..\..\include\facade\Image.h" />
     <ClInclude Include="..\..\..\include\facade\Image3D.h" />
+    <ClInclude Include="..\..\..\include\facade\ImageCube.h" />
     <ClInclude Include="..\..\..\include\facade\ImageLoader.h" />
     <ClInclude Include="..\..\..\include\facade\LoadingList.h" />
     <ClInclude Include="..\..\..\include\facade\Multitask.h" />
@@ -35,6 +36,7 @@
     <ClCompile Include="..\..\..\source\GTxt.cpp" />
     <ClCompile Include="..\..\..\source\Image.cpp" />
     <ClCompile Include="..\..\..\source\Image3D.cpp" />
+    <ClCompile Include="..\..\..\source\ImageCube.cpp" />
     <ClCompile Include="..\..\..\source\ImageLoader.cpp" />
     <ClCompile Include="..\..\..\source\LoadingList.cpp" />
     <ClCompile Include="..\..\..\source\Multitask.cpp" />
