@@ -17,6 +17,8 @@ public:
 
     auto GetTexture() { return m_texture; }
 
+    const std::string& GetResPath() const { return m_filepath; }
+
 private:
     std::string m_filepath;
 
