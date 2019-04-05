@@ -9,8 +9,8 @@
 #include <dtex2/CacheMgr.h>
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
-#include <rendergraph/RenderMgr.h>
-#include <rendergraph/SpriteRenderer.h>
+#include <renderpipeline/RenderMgr.h>
+#include <renderpipeline/SpriteRenderer.h>
 #include <painting2/Blackboard.h>
 #include <painting2/WindowContext.h>
 #include <painting2/RenderContext.h>
@@ -58,8 +58,8 @@ clear_color_part(float xmin, float ymin, float xmax, float ymax)
 	tess::Painter pt;
 	pt.AddRectFilled(sm::vec2(xmin, xmax), sm::vec2(xmax, ymax), 0, 0);
 
-	auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-	std::static_pointer_cast<rg::SpriteRenderer>(rd)->DrawPainter(pt);
+	auto rd = rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
+	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawPainter(pt);
 
 //	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	ur_rc.EnableBlend(true);
@@ -73,7 +73,7 @@ static void
 set_program()
 {
 	// todo
-	rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
+	rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
 }
 
 static void
@@ -94,7 +94,7 @@ std::stack<std::shared_ptr<pt2::WindowContext>> wc_stack;
 static void
 draw_begin()
 {
-	rg::RenderMgr::Instance()->Flush();
+	rp::RenderMgr::Instance()->Flush();
 
 	// reset for 2d
 	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
@@ -115,8 +115,8 @@ draw_begin()
 		// fixme:
 		// curr shader not connect to the new wnd_ctx
 		// should update its matrix manually
-		auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-		auto shader = std::static_pointer_cast<rg::SpriteRenderer>(rd)->GetAllShaders()[0];
+		auto rd = rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
+		auto shader = std::static_pointer_cast<rp::SpriteRenderer>(rd)->GetAllShaders()[0];
 		std::static_pointer_cast<pt2::Shader>(shader)->UpdateProjMat(2, 2);
 		std::static_pointer_cast<pt2::Shader>(shader)->UpdateViewMat(sm::vec2(0, 0), 1);
 		//shader->SetMat4("u_model", sm::mat4().x);
@@ -135,14 +135,14 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 		texcoords[i].y = _texcoords[i * 2 + 1];
 	}
 
-	auto rd = rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE);
-	std::static_pointer_cast<rg::SpriteRenderer>(rd)->DrawQuad(&vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
+	auto rd = rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
+	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawQuad(&vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
 }
 
 static void
 draw_end()
 {
-	rg::RenderMgr::Instance()->Flush();
+	rp::RenderMgr::Instance()->Flush();
 
 	if (DRAW_END) {
 		DRAW_END();
@@ -155,7 +155,7 @@ draw_end()
 static void
 draw_flush()
 {
-	rg::RenderMgr::Instance()->Flush();
+	rp::RenderMgr::Instance()->Flush();
 }
 
 static void

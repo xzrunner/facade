@@ -4,9 +4,9 @@
 #include <tessellation/Painter.h>
 #include <painting2/Textbox.h>
 #include <easygui/Callback.h>
-#include <rendergraph/Callback.h>
-#include <rendergraph/SpriteRenderer.h>
-#include <rendergraph/RenderMgr.h>
+#include <renderpipeline/Callback.h>
+#include <renderpipeline/SpriteRenderer.h>
+#include <renderpipeline/RenderMgr.h>
 #include <tessellation/Palette.h>
 
 namespace
@@ -37,8 +37,8 @@ EasyGUI::EasyGUI()
 {
 	egui::style_colors_dark(ctx.style);
 
-	auto sr = std::static_pointer_cast<rg::SpriteRenderer>(
-		rg::RenderMgr::Instance()->SetRenderer(rg::RenderType::SPRITE)
+	auto sr = std::static_pointer_cast<rp::SpriteRenderer>(
+		rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE)
 	);
 	auto& palette = sr->GetPalette();
 	TEXTURES[TexType::PALETTE].id = palette.GetTexID();
@@ -77,7 +77,7 @@ EasyGUI::EasyGUI()
 			assert(begin < end);
 			sm::irect qr(0, 0, tex.w, tex.h);
 			int cached_texid;
-			auto cached_texcoords = rg::Callback::QueryCachedTexQuad(tex.id, qr, cached_texid);
+			auto cached_texcoords = rp::Callback::QueryCachedTexQuad(tex.id, qr, cached_texid);
 			if (cached_texcoords)
 			{
 				float x = cached_texcoords[0];
@@ -95,7 +95,7 @@ EasyGUI::EasyGUI()
 			}
 			else
 			{
-				rg::Callback::AddCacheSymbol(tex.id, tex.w, tex.h, qr);
+				rp::Callback::AddCacheSymbol(tex.id, tex.w, tex.h, qr);
 			}
 		};
 

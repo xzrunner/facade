@@ -14,7 +14,7 @@
 #include <painting2/Textbox.h>
 #include <painting3/Painting3.h>
 #include <node2/AABBSystem.h>
-#include <rendergraph/Callback.h>
+#include <renderpipeline/Callback.h>
 
 namespace facade
 {
@@ -64,7 +64,7 @@ void Facade::Init()
     pt3::Painting3::Init();
 
 	// rendergraph
-	rg::Callback::Funs rg_cb;
+	rp::Callback::Funs rg_cb;
 	rg_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, int& out_tex_id)->const float* {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
 		int block_id;
@@ -74,7 +74,7 @@ void Facade::Init()
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
 		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
 	};
-	rg::Callback::RegisterCallback(rg_cb);
+	rp::Callback::RegisterCallback(rg_cb);
 }
 
 void Facade::Update(float dt)

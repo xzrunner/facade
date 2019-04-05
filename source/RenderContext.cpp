@@ -4,7 +4,7 @@
 #include <unirender/Blackboard.h>
 #include <painting2/RenderContext.h>
 #include <painting2/Blackboard.h>
-#include <rendergraph/RenderMgr.h>
+#include <renderpipeline/RenderMgr.h>
 
 namespace facade
 {
@@ -21,7 +21,7 @@ RenderContext::RenderContext()
 	auto ur_rc = std::make_shared<ur::gl::RenderContext>(max_texture, [](ur::RenderContext& ctx) 
 	{
 		ctx.EnableFlushCB(false);
-		rg::RenderMgr::Instance()->Flush();
+		rp::RenderMgr::Instance()->Flush();
 		ctx.EnableFlushCB(true);
 	});
 	ur::Blackboard::Instance()->SetRenderContext(ur_rc);
