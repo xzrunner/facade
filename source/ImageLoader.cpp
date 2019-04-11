@@ -23,9 +23,9 @@ ImageLoader::ImageLoader(const std::string& res_path)
 {
 }
 
-bool ImageLoader::Load()
+bool ImageLoader::Load(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 {
-	return LoadRaw();
+	return LoadRaw(wrap, filter);
 
 	//auto& filepath = m_res_path.GetFilepath();
 	//if (filepath.find(".ept") != CU_STR::npos ||
@@ -64,7 +64,7 @@ bool ImageLoader::Load()
 //	return true;
 //}
 
-bool ImageLoader::LoadRaw()
+bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 {
 	if (!boost::filesystem::is_regular_file(m_res_path)) {
 		return false;
@@ -122,7 +122,7 @@ bool ImageLoader::LoadRaw()
 
 	m_format = tf;
 	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	m_id = ur_rc.CreateTexture(pixels, w, h, tf);
+	m_id = ur_rc.CreateTexture(pixels, w, h, tf, 0, wrap, filter);
 	free(pixels);
 
 	return true;

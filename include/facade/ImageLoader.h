@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unirender/typedef.h>
+
 #include <memory>
 #include <string>
 
@@ -13,7 +15,7 @@ class ImageLoader
 public:
 	ImageLoader(const std::string& res_path);
 
-	bool Load();
+	bool Load(ur::TEXTURE_WRAP wrap = ur::TEXTURE_REPEAT, ur::TEXTURE_FILTER filter = ur::TEXTURE_LINEAR);
 //	bool AsyncLoad(int format, int width, int height, const std::shared_ptr<Image>& img);
 
 	int GetID() const { return m_id; }
@@ -23,7 +25,7 @@ public:
 	int GetHeight() const { return m_height; }
 
 private:
-	bool LoadRaw();
+	bool LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter);
 //	bool LoadBin();
 //	bool LoadBin(const timp::TextureLoader& loader);
 
