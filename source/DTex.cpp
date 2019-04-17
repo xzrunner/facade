@@ -98,8 +98,8 @@ draw_begin()
 
 	// reset for 2d
 	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.SetDepthTest(ur::DEPTH_DISABLE);
-	ur_rc.SetCull(ur::CULL_DISABLE);
+	ur_rc.SetZTest(ur::DEPTH_DISABLE);
+	ur_rc.SetCullMode(ur::CULL_DISABLE);
 
 	if (DRAW_BEGIN)
 	{
