@@ -4,6 +4,7 @@
 #include <gimg_typedef.h>
 #include <gimg_pvr.h>
 #include <gimg_etc2.h>
+#include <gimg_utility.h>
 #include <unirender/RenderContext.h>
 #include <unirender/Blackboard.h>
 #include <fs_file.h>
@@ -76,11 +77,20 @@ bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 		return false;
 	}
 
+    m_type = ur::TEXTURE_2D;
+    auto file_type = gimg_file_type(m_res_path.c_str());
+    switch (file_type)
+    {
+    case FILE_HDR:
+        m_type = ur::TEXTURE_CUBE;
+        break;
+    }
+
 	//if (fmt == GPF_RGBA8 && gum::Config::Instance()->GetPreMulAlpha()) {
 	//	gimg_pre_mul_alpha(pixels, w, h);
 	//}
 
-	m_width = w;
+	m_width  = w;
 	m_height = h;
 
 	ur::TEXTURE_FORMAT tf = ur::TEXTURE_INVALID;

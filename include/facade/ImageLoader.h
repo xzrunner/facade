@@ -18,6 +18,8 @@ public:
 	bool Load(ur::TEXTURE_WRAP wrap = ur::TEXTURE_REPEAT, ur::TEXTURE_FILTER filter = ur::TEXTURE_LINEAR);
 //	bool AsyncLoad(int format, int width, int height, const std::shared_ptr<Image>& img);
 
+    size_t GetType() const { return m_type; }
+
 	int GetID() const { return m_id; }
 	int GetFormat() const { return m_format; }
 
@@ -37,6 +39,8 @@ private:
 
 private:
 	std::string m_res_path;
+
+    uint32_t m_type = 0;
 
 	int m_id;
 	int m_format;
