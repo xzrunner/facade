@@ -3,7 +3,6 @@
 
 #include <unirender/TextureCube.h>
 #include <unirender/Blackboard.h>
-#include <renderpipeline/HDREquirectangularToCubemap.h>
 
 namespace facade
 {
@@ -18,7 +17,7 @@ bool ImageCube::LoadFromFile(const std::string& filepath)
     ImageLoader loader(filepath);
     if (loader.Load()) {
         m_filepath = filepath;
-        m_texture->SetTexID(rp::HDREquirectangularToCubemap(loader.GetID()));
+        m_texture->SetTexID(loader.GetID());
         return true;
     } else {
         return false;

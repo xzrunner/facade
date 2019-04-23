@@ -9,6 +9,7 @@
 #include <unirender/Blackboard.h>
 #include <fs_file.h>
 #include <guard/check.h>
+#include <renderpipeline/HDREquirectangularToCubemap.h>
 
 #include <boost/filesystem.hpp>
 
@@ -134,6 +135,13 @@ bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
 	m_id = ur_rc.CreateTexture(pixels, w, h, tf, 0, wrap, filter);
 	free(pixels);
+
+    if (file_type == FILE_HDR)
+    {
+        auto cube_id = rp::HDREquirectangularToCubemap(m_id);
+        ur_rc.ReleaseTexture(m_id);
+        m_id = cube_id;
+    }
 
 	return true;
 }
