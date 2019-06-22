@@ -112,6 +112,9 @@ bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 	case GPF_BGR_EXT:
 		tf = ur::TEXTURE_BGR_EXT;
 		break;
+    case GPF_RGBA16F:
+        tf = ur::TEXTURE_RGBA16F;
+        break;
     case GPF_RGB16F:
         tf = ur::TEXTURE_RGB16F;
         break;
