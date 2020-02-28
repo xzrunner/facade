@@ -100,6 +100,9 @@ bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 	case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
 		tf = ur::TEXTURE_A8;
 		break;
+    case GPF_RED:
+        tf = ur::TEXTURE_RED;
+        break;
 	case GPF_RGB:
 		tf = ur::TEXTURE_RGB;
 		break;
