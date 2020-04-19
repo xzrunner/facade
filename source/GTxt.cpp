@@ -12,6 +12,7 @@
 #include <sx/ResourceUID.h>
 #include <sx/GlyphStyle.h>
 #include <cpputil/StringHelper.h>
+#include <unirender2/RenderState.h>
 #include <tessellation/Painter.h>
 #include <painting2/RenderSystem.h>
 #include <painting2/RenderColorCommon.h>
@@ -25,6 +26,9 @@
 
 namespace
 {
+
+std::shared_ptr<ur2::Device> UR_DEV = nullptr;
+std::shared_ptr<ur2::Context> UR_CTX = nullptr;
 
 /************************************************************************/
 /* render                                                               */
@@ -75,7 +79,8 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 	if (rp->pt) {
 		rp->pt->AddTexQuad(id, vertices, texcoords, 0xffffffff);
 	} else {
-		pt2::RenderSystem::DrawTexQuad(&vertices[0].x, &texcoords[0].x, id, 0xffffffff);
+        ur2::RenderState rs;
+		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *UR_CTX, rs, &vertices[0].x, &texcoords[0].x, id, 0xffffffff);
 	}
 }
 
@@ -126,7 +131,8 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 		}
 	}
 
-	pt2::RenderSystem::DrawPainter(pt);
+    ur2::RenderState rs;
+	pt2::RenderSystem::DrawPainter(*UR_DEV, *UR_CTX, rs, pt);
 }
 
 void
@@ -241,7 +247,7 @@ ext_sym_create(const char* str) {
 	n0::SceneNodePtr node = nullptr;
 	if (tokens.size() == 2) {
 		if (tokens[0] == "path") {
-			node = ns::NodeFactory::Create(tokens[1]);
+			node = ns::NodeFactory::Create(*UR_DEV, tokens[1]);
 		}
 	} else if (tokens.size() == 4) {
 		//if (tokens[0] == "pkg" && tokens[2] == "export") {
@@ -297,7 +303,10 @@ ext_sym_render(void* ext_sym, float x, float y, void* ud) {
 
 	auto node(*static_cast<n0::SceneNodePtr*>(ext_sym));
 	auto& casset = node->GetSharedComp<n0::CompAsset>();
-	n2::RenderSystem::Instance()->Draw(casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp);
+    ur2::RenderState rs;
+	n2::RenderSystem::Instance()->Draw(
+        *UR_DEV, *UR_CTX, rs, casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp
+    );
 }
 
 /************************************************************************/

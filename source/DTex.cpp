@@ -7,8 +7,6 @@
 #include <dtex2/CacheSymbol.h>
 #include <dtex2/CacheGlyph.h>
 #include <dtex2/CacheMgr.h>
-#include <unirender/RenderContext.h>
-#include <unirender/Blackboard.h>
 #include <renderpipeline/RenderMgr.h>
 #include <renderpipeline/SpriteRenderer.h>
 #include <painting2/Blackboard.h>
@@ -29,6 +27,11 @@ void (*DRAW_BEGIN)()   = nullptr;
 void (*DRAW_END)()     = nullptr;
 void (*ERROR_RELOAD)() = nullptr;
 
+std::shared_ptr<ur2::Device> UR_DEV = nullptr;
+std::shared_ptr<ur2::Context> UR_CTX = nullptr;
+
+ur2::RenderState UR_RS;
+
 /************************************************************************/
 /* draw                                                                 */
 /************************************************************************/
@@ -36,56 +39,55 @@ void (*ERROR_RELOAD)() = nullptr;
 static void
 clear_color_part(float xmin, float ymin, float xmax, float ymax)
 {
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.EnableBlend(false);
-//	glBlendFunc(GL_ONE, GL_ZERO);
-
-	auto& wc = pt2::Blackboard::Instance()->GetWindowContext();
-	int w = wc->GetScreenWidth(),
-		h = wc->GetScreenHeight();
-	xmin = w * 0.5f * (xmin - 1);
-	xmax = w * 0.5f * (xmax - 1);
-	ymin = h * 0.5f * (ymin + 1);
-	ymax = h * 0.5f * (ymax + 1);
-
-	CU_VEC<sm::vec2> triangles;
-	triangles.resize(4);
-	triangles[0].Set(xmin, ymin);
-	triangles[1].Set(xmin, ymax);
-	triangles[2].Set(xmax, ymin);
-	triangles[3].Set(xmax, ymax);
-
-	tess::Painter pt;
-	pt.AddRectFilled(sm::vec2(xmin, xmax), sm::vec2(xmax, ymax), 0, 0);
-
-	auto rd = rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
-	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawPainter(pt);
-
-//	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	ur_rc.EnableBlend(true);
-
-	//////////////////////////////////////////////////////////////////////////
-
-//	dtex_gl_clear_color(0, 0, 0, 0);
+//    UR_RS.blending.enabled = false;
+////	glBlendFunc(GL_ONE, GL_ZERO);
+//
+//	auto& wc = pt2::Blackboard::Instance()->GetWindowContext();
+//	int w = wc->GetScreenWidth(),
+//		h = wc->GetScreenHeight();
+//	xmin = w * 0.5f * (xmin - 1);
+//	xmax = w * 0.5f * (xmax - 1);
+//	ymin = h * 0.5f * (ymin + 1);
+//	ymax = h * 0.5f * (ymax + 1);
+//
+//	CU_VEC<sm::vec2> triangles;
+//	triangles.resize(4);
+//	triangles[0].Set(xmin, ymin);
+//	triangles[1].Set(xmin, ymax);
+//	triangles[2].Set(xmax, ymin);
+//	triangles[3].Set(xmax, ymax);
+//
+//	tess::Painter pt;
+//	pt.AddRectFilled(sm::vec2(xmin, xmax), sm::vec2(xmax, ymax), 0, 0);
+//
+//	auto rd = rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE);
+//	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawPainter(*UR_CTX, pt);
+//
+////	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+//    UR_RS.blending.enabled = true;
+//
+//	//////////////////////////////////////////////////////////////////////////
+//
+////	dtex_gl_clear_color(0, 0, 0, 0);
 }
 
 static void
 set_program()
 {
 	// todo
-	rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
+	rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE);
 }
 
 static void
 enable_blend(bool enable)
 {
-	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
 	if (enable) {
-		rc.EnableBlend(true);
-		rc.SetBlend(ur::BLEND_SRC_ALPHA, ur::BLEND_ONE_MINUS_SRC_ALPHA);
+        UR_RS.blending.enabled = true;
+        UR_RS.blending.src = ur2::BlendingFactor::SrcAlpha;
+        UR_RS.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
 	} else {
 	//	rc.SetBlend(ur::BLEND_ONE, ur::BLEND_ONE_MINUS_SRC_ALPHA);
-		rc.EnableBlend(false);
+        UR_RS.blending.enabled = false;
 	}
 }
 
@@ -94,12 +96,13 @@ std::stack<std::shared_ptr<pt2::WindowContext>> wc_stack;
 static void
 draw_begin()
 {
-	rp::RenderMgr::Instance()->Flush();
+    if (UR_DEV && UR_CTX) {
+        rp::RenderMgr::Instance()->Flush(*UR_DEV, *UR_CTX);
+    }
 
 	// reset for 2d
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	ur_rc.SetZTest(ur::DEPTH_DISABLE);
-	ur_rc.SetCullMode(ur::CULL_DISABLE);
+    UR_RS.depth_test.enabled = false;
+    UR_RS.facet_culling.enabled = false;
 
 	if (DRAW_BEGIN)
 	{
@@ -107,20 +110,20 @@ draw_begin()
 	}
 	else
 	{
-		wc_stack.push(pt2::Blackboard::Instance()->GetWindowContext());
-		auto new_wc = std::make_shared<pt2::WindowContext>(2.0f, 2.0f, 0, 0);
-		new_wc->Bind();
-		wc_stack.push(new_wc);
-
-		// fixme:
-		// curr shader not connect to the new wnd_ctx
-		// should update its matrix manually
-		auto rd = rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
-		auto shader = std::static_pointer_cast<rp::SpriteRenderer>(rd)->GetAllShaders()[0];
-		std::static_pointer_cast<pt2::Shader>(shader)->UpdateProjMat(2, 2);
-		std::static_pointer_cast<pt2::Shader>(shader)->UpdateViewMat(sm::vec2(0, 0), 1);
-		//shader->SetMat4("u_model", sm::mat4().x);
-//        shader->UpdateModelMat(sm::mat4().x);
+//		wc_stack.push(pt2::Blackboard::Instance()->GetWindowContext());
+//		auto new_wc = std::make_shared<pt2::WindowContext>(2.0f, 2.0f, 0, 0);
+//		new_wc->Bind();
+//		wc_stack.push(new_wc);
+//
+//		// fixme:
+//		// curr shader not connect to the new wnd_ctx
+//		// should update its matrix manually
+//		auto rd = rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE);
+//		auto shader = std::static_pointer_cast<rp::SpriteRenderer>(rd)->GetAllShaders()[0];
+//		std::static_pointer_cast<pt2::Shader>(shader)->UpdateProjMat(2, 2);
+//		std::static_pointer_cast<pt2::Shader>(shader)->UpdateViewMat(sm::vec2(0, 0), 1);
+//		//shader->SetMat4("u_model", sm::mat4().x);
+////        shader->UpdateModelMat(sm::mat4().x);
 	}
 }
 
@@ -135,55 +138,56 @@ draw(const float _vertices[8], const float _texcoords[8], int texid)
 		texcoords[i].y = _texcoords[i * 2 + 1];
 	}
 
-	auto rd = rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE);
-	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawQuad(&vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
+	auto rd = rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE);
+    ur2::RenderState rs;
+	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawQuad(*UR_CTX, rs, &vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
 }
 
 static void
 draw_end()
 {
-	rp::RenderMgr::Instance()->Flush();
+	rp::RenderMgr::Instance()->Flush(*UR_DEV, *UR_CTX);
 
 	if (DRAW_END) {
 		DRAW_END();
 	} else {
 		wc_stack.pop();
-		wc_stack.top()->Bind();
+		wc_stack.top()->Bind(*UR_CTX);
 	}
 }
 
 static void
 draw_flush()
 {
-	rp::RenderMgr::Instance()->Flush();
+	rp::RenderMgr::Instance()->Flush(*UR_DEV, *UR_CTX);
 }
 
 static void
 scissor_push(int x, int y, int w, int h)
 {
-	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
-	scissor.Push(static_cast<float>(x), static_cast<float>(y), static_cast<float>(w), static_cast<float>(h), false, true);
+    UR_RS.scissor_test.enabled = true;
+    UR_RS.scissor_test.rect.x = x;
+    UR_RS.scissor_test.rect.y = y;
+    UR_RS.scissor_test.rect.w = w;
+    UR_RS.scissor_test.rect.h = h;
 }
 
 static void
 scissor_pop()
 {
-	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
-	scissor.Pop();
+    UR_RS.scissor_test.enabled = false;
 }
 
 static void
 scissor_disable()
 {
-	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
-	scissor.Disable();
+    UR_RS.scissor_test.enabled = false;
 }
 
 static void
 scissor_enable()
 {
-	auto& scissor = pt2::Blackboard::Instance()->GetRenderContext().GetScissor();
-	scissor.Enable();
+    UR_RS.scissor_test.enabled = true;
 }
 
 /************************************************************************/
@@ -455,8 +459,8 @@ DTex::DTex()
 	render_cb.scissor_enable   = scissor_enable;
 
 	dtex::RenderAPI::InitCallback(render_cb);
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	dtex::RenderAPI::InitRenderContext(&ur_rc);
+	//auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
+	//dtex::RenderAPI::InitRenderContext(&ur_rc);
 
 	dtex::ResourceAPI::Callback res_cb;
 	//res_cb.error_reload            = error_reload;

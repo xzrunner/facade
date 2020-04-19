@@ -1,6 +1,7 @@
 #include "facade/EasyGUI.h"
 #include "facade/GTxt.h"
 
+#include <unirender2/Texture.h>
 #include <tessellation/Painter.h>
 #include <painting2/Textbox.h>
 #include <easygui/Callback.h>
@@ -13,6 +14,9 @@ namespace
 {
 
 pt2::Textbox TEXTBOX;
+
+std::shared_ptr<ur2::Device> UR_DEV = nullptr;
+std::shared_ptr<ur2::Context> UR_CTX = nullptr;
 
 enum TexType
 {
@@ -38,12 +42,12 @@ EasyGUI::EasyGUI()
 	egui::style_colors_dark(ctx.style);
 
 	auto sr = std::static_pointer_cast<rp::SpriteRenderer>(
-		rp::RenderMgr::Instance()->SetRenderer(rp::RenderType::SPRITE)
+		rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE)
 	);
-	auto& palette = sr->GetPalette();
-	TEXTURES[TexType::PALETTE].id = palette.GetTexID();
-	TEXTURES[TexType::PALETTE].w = palette.GetTexWidth();
-	TEXTURES[TexType::PALETTE].h = palette.GetTexHeight();
+	auto tex = sr->GetPalette().GetTexture();
+	TEXTURES[TexType::PALETTE].id = tex->GetTexID();
+	TEXTURES[TexType::PALETTE].w = tex->GetWidth();
+	TEXTURES[TexType::PALETTE].h = tex->GetHeight();
 
 	TEXTBOX.width = 300;
 	TEXTBOX.font_size = ctx.style.font_sz;

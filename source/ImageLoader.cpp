@@ -5,10 +5,10 @@
 #include <gimg_pvr.h>
 #include <gimg_etc2.h>
 #include <gimg_utility.h>
-#include <unirender/RenderContext.h>
-#include <unirender/Blackboard.h>
 #include <fs_file.h>
 #include <guard/check.h>
+#include <unirender2/Device.h>
+#include <unirender2/Bitmap.h>
 #include <renderpipeline/HDREquirectangularToCubemap.h>
 
 #include <boost/filesystem.hpp>
@@ -18,16 +18,17 @@ namespace facade
 
 ImageLoader::ImageLoader(const std::string& res_path)
 	: m_res_path(res_path)
-	, m_id(0)
-	, m_format(0)
-	, m_width(0)
-	, m_height(0)
+	//, m_id(0)
+	//, m_width(0)
+	//, m_height(0)
 {
 }
 
-bool ImageLoader::Load(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
+bool ImageLoader::Load(const ur2::Device& dev, ur2::TextureWrap wrap,
+                       ur2::TextureMinificationFilter min_filter,
+                       ur2::TextureMagnificationFilter mag_filter)
 {
-	return LoadRaw(wrap, filter);
+	return LoadRaw(dev, wrap, min_filter, mag_filter);
 
 	//auto& filepath = m_res_path.GetFilepath();
 	//if (filepath.find(".ept") != CU_STR::npos ||
@@ -66,7 +67,9 @@ bool ImageLoader::Load(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 //	return true;
 //}
 
-bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
+bool ImageLoader::LoadRaw(const ur2::Device& dev, ur2::TextureWrap wrap,
+                          ur2::TextureMinificationFilter min_filter,
+                          ur2::TextureMagnificationFilter mag_filter)
 {
 	if (!boost::filesystem::is_regular_file(m_res_path)) {
 		return false;
@@ -78,76 +81,86 @@ bool ImageLoader::LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter)
 		return false;
 	}
 
-    m_type = ur::TEXTURE_2D;
-    auto file_type = gimg_file_type(m_res_path.c_str());
-    switch (file_type)
-    {
-    case FILE_HDR:
-        m_type = ur::TEXTURE_CUBE;
-        break;
-    }
+    //m_type = ur2::TextureTarget::Texture2D;
+    //auto file_type = gimg_file_type(m_res_path.c_str());
+    //switch (file_type)
+    //{
+    //case FILE_HDR:
+    //    m_type = ur2::TextureTarget::TextureCubeMap;
+    //    break;
+    //}
 
 	//if (fmt == GPF_RGBA8 && gum::Config::Instance()->GetPreMulAlpha()) {
 	//	gimg_pre_mul_alpha(pixels, w, h);
 	//}
 
-	m_width  = w;
-	m_height = h;
-
-	ur::TEXTURE_FORMAT tf = ur::TEXTURE_INVALID;
+    ur2::TextureFormat tf;
+    int channels = 0;
 	switch (fmt)
 	{
 	case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
-		tf = ur::TEXTURE_A8;
+		tf =  ur2::TextureFormat::A8;
+        channels = 1;
 		break;
     case GPF_RED:
-        tf = ur::TEXTURE_RED;
+        tf =  ur2::TextureFormat::RED;
+        channels = 1;
         break;
 	case GPF_RGB:
-		tf = ur::TEXTURE_RGB;
+		tf =  ur2::TextureFormat::RGB;
+        channels = 3;
 		break;
 	case GPF_RGBA8:
-		tf = ur::TEXTURE_RGBA8;
+		tf =  ur2::TextureFormat::RGBA8;
+        channels = 4;
 		break;
 	case GPF_BGRA_EXT:
-		tf = ur::TEXTURE_BGRA_EXT;
+		tf =  ur2::TextureFormat::BGRA_EXT;
+        channels = 4;
 		break;
 	case GPF_BGR_EXT:
-		tf = ur::TEXTURE_BGR_EXT;
+		tf =  ur2::TextureFormat::BGR_EXT;
+        channels = 3;
 		break;
     case GPF_RGBA16F:
-        tf = ur::TEXTURE_RGBA16F;
+        tf =  ur2::TextureFormat::RGBA16F;
+        channels = 4;
         break;
     case GPF_RGB16F:
-        tf = ur::TEXTURE_RGB16F;
+        tf =  ur2::TextureFormat::RGB16F;
+        channels = 3;
         break;
     case GPF_RGB32F:
-        tf = ur::TEXTURE_RGB32F;
+        tf =  ur2::TextureFormat::RGB32F;
+        channels = 3;
         break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		tf =  ur2::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        channels = 4;
 		break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
-		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+		tf =  ur2::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        channels = 4;
 		break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-		tf = ur::TEXTURE_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		tf =  ur2::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        channels = 4;
 		break;
 	default:
 		GD_REPORT_ASSERT("unknown type.");
 	}
 
-	m_format = tf;
-	auto& ur_rc = ur::Blackboard::Instance()->GetRenderContext();
-	m_id = ur_rc.CreateTexture(pixels, w, h, tf, 0, wrap, filter);
+    auto bmp = std::make_shared<ur2::Bitmap>(w, h, channels, pixels);
 	free(pixels);
+    m_tex = dev.CreateTexture(*bmp, tf);
 
-    if (file_type == FILE_HDR)
-    {
-        auto cube_id = rp::HDREquirectangularToCubemap(m_id);
-        ur_rc.ReleaseTexture(m_id);
-        m_id = cube_id;
-    }
+
+    //if (file_type == FILE_HDR)
+    //{
+    //    auto cube_id = rp::HDREquirectangularToCubemap(m_id);
+    //    ur_rc.ReleaseTexture(m_id);
+    //    m_id = cube_id;
+    //}
 
 	return true;
 }

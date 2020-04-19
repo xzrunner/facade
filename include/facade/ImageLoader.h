@@ -1,9 +1,16 @@
 #pragma once
 
-#include <unirender/typedef.h>
+#include <unirender2/TextureWrap.h>
+#include <unirender2/TextureMinificationFilter.h>
+#include <unirender2/TextureMagnificationFilter.h>
+#include <unirender2/TextureTarget.h>
+#include <unirender2/TextureFormat.h>
+#include <unirender2/typedef.h>
 
 #include <memory>
 #include <string>
+
+namespace ur2 { class Device; }
 
 namespace facade
 {
@@ -15,19 +22,24 @@ class ImageLoader
 public:
 	ImageLoader(const std::string& res_path);
 
-	bool Load(ur::TEXTURE_WRAP wrap = ur::TEXTURE_REPEAT, ur::TEXTURE_FILTER filter = ur::TEXTURE_LINEAR);
+    bool Load(const ur2::Device& dev, ur2::TextureWrap wrap = ur2::TextureWrap::Repeat,
+        ur2::TextureMinificationFilter min_filter = ur2::TextureMinificationFilter::Linear,
+        ur2::TextureMagnificationFilter mag_filter = ur2::TextureMagnificationFilter::Linear);
 //	bool AsyncLoad(int format, int width, int height, const std::shared_ptr<Image>& img);
 
-    size_t GetType() const { return m_type; }
+    //auto GetType() const { return m_type; }
 
-	int GetID() const { return m_id; }
-	int GetFormat() const { return m_format; }
+	//int GetID() const { return m_id; }
+	//auto GetFormat() const { return m_format; }
 
-	int GetWidth() const { return m_width; }
-	int GetHeight() const { return m_height; }
+	//int GetWidth() const { return m_width; }
+	//int GetHeight() const { return m_height; }
+
+    auto GetTexture() const { return m_tex; }
 
 private:
-	bool LoadRaw(ur::TEXTURE_WRAP wrap, ur::TEXTURE_FILTER filter);
+	bool LoadRaw(const ur2::Device& dev, ur2::TextureWrap wrap,
+        ur2::TextureMinificationFilter min_filter, ur2::TextureMagnificationFilter mag_filter);
 //	bool LoadBin();
 //	bool LoadBin(const timp::TextureLoader& loader);
 
@@ -40,11 +52,14 @@ private:
 private:
 	std::string m_res_path;
 
-    uint32_t m_type = 0;
+    ur2::TexturePtr m_tex = nullptr;
 
-	int m_id;
-	int m_format;
-	int m_width, m_height;
+ //   ur2::TextureTarget m_type;
+
+
+
+	//ur2::TextureFormat m_format;
+	//int m_width, m_height;
 
 }; // ImageLoader
 

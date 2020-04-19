@@ -2,10 +2,9 @@
 #include "facade/RenderContext.h"
 #include "facade/ImageLoader.h"
 
-#include <painting2/Texture.h>
+#include <unirender2/Device.h>
+#include <unirender2/Texture.h>
 #include <stat/StatImages.h>
-#include <unirender/RenderContext.h>
-#include <unirender/Blackboard.h>
 
 #include <assert.h>
 
@@ -14,34 +13,39 @@ namespace facade
 
 static int ALL_IMG_COUNT = 0;
 
-Image::Image()
-	: m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
-	, m_texture(std::make_shared<pt2::Texture>(&ur::Blackboard::Instance()->GetRenderContext(), 0, 0, 0, 0))
+Image::Image(const ur2::Device* dev)
+	: m_dev(*dev)
+    , m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
 {
 	++ALL_IMG_COUNT;
 }
 
-Image::Image(int pkg_id, const std::string& res_path, bool async)
-	: m_pkg_id(pkg_id)
+Image::Image(const ur2::Device& dev, int pkg_id, const std::string& res_path, bool async)
+	: m_dev(dev)
+    , m_pkg_id(pkg_id)
 	, m_res_path(res_path)
-	, m_texture(std::make_shared<pt2::Texture>(&ur::Blackboard::Instance()->GetRenderContext(), 0, 0, 0, 0))
 {
 	++ALL_IMG_COUNT;
 
 	if (!async)
 	{
 		ImageLoader loader(m_res_path);
-		bool ret = loader.Load();
+		bool ret = loader.Load(dev);
 		if (ret) {
 			LoadFromLoader(loader);
 			st::StatImages::Instance()->Add(
-				pkg_id, m_texture->Width(), m_texture->Height(), m_texture->Format());
+				pkg_id,
+                m_texture->GetWidth(),
+                m_texture->GetHeight(),
+                static_cast<int>(m_texture->GetFormat())
+            );
 		}
 	}
 }
 
-Image::Image(const std::shared_ptr<pt2::Texture>& tex)
-	: m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
+Image::Image(const ur2::Device& dev, const ur2::TexturePtr& tex)
+	: m_dev(dev)
+    , m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
 	, m_texture(tex)
 {
 }
@@ -50,9 +54,13 @@ Image::~Image()
 {
 	--ALL_IMG_COUNT;
 
-	if (m_texture->TexID() != 0) {
+	if (m_texture) {
 		st::StatImages::Instance()->Remove(
-			m_pkg_id, m_texture->Width(), m_texture->Height(), m_texture->Format());
+			m_pkg_id,
+            m_texture->GetWidth(),
+            m_texture->GetHeight(),
+            static_cast<int>(m_texture->GetFormat())
+        );
 	}
 }
 
@@ -62,14 +70,18 @@ bool Image::LoadFromFile(const std::string& filepath)
 	m_res_path = filepath;
 
 	ImageLoader loader(m_res_path);
-	bool ret = loader.Load();
+	bool ret = loader.Load(m_dev);
 	if (!ret) {
 		return false;
 	}
 
 	LoadFromLoader(loader);
 	st::StatImages::Instance()->Add(
-		m_pkg_id, m_texture->Width(), m_texture->Height(), m_texture->Format());
+		m_pkg_id,
+        m_texture->GetWidth(),
+        m_texture->GetHeight(),
+        static_cast<int>(m_texture->GetFormat())
+    );
 
 	return true;
 }
@@ -90,45 +102,49 @@ bool Image::LoadFromFile(const std::string& filepath)
 
 uint16_t Image::GetWidth() const
 {
-	return m_texture->Width();
+	return m_texture->GetWidth();
 }
 
 uint16_t Image::GetHeight() const
 {
-	return m_texture->Height();
+	return m_texture->GetHeight();
 }
 
 uint32_t Image::GetTexID() const
 {
-	return m_texture->TexID();
+	return m_texture->GetTexID();
 }
 
 bool Image::IsLoadFinished() const
 {
-	if (m_texture) {
-		return m_texture->IsLoadFinished();
-	} else {
-		return true;
-	}
+	//if (m_texture) {
+	//	return m_texture->IsLoadFinished();
+	//} else {
+	//	return true;
+	//}
+
+    return true;
 }
 
 void Image::SetLoadFinished(bool finished)
 {
-	if (m_texture) {
-		m_texture->SetLoadFinished(finished);
-	}
+	//if (m_texture) {
+	//	m_texture->SetLoadFinished(finished);
+	//}
 }
 
 void Image::LoadFromLoader(const ImageLoader& loader)
 {
-	auto id     = loader.GetID();
-	auto format = loader.GetFormat();
-	auto width  = loader.GetWidth();
-	auto height = loader.GetHeight();
+	//auto id     = loader.GetID();
+	//auto format = loader.GetFormat();
+	//auto width  = loader.GetWidth();
+	//auto height = loader.GetHeight();
 
-	auto& rc = ur::Blackboard::Instance()->GetRenderContext();
-	m_texture->Init(&rc, width, height, id, format);
-	m_texture->InitOri(width, height);
+	//auto& rc = ur::Blackboard::Instance()->GetRenderContext();
+	//m_texture->Init(&rc, width, height, id, format);
+	//m_texture->InitOri(width, height);
+
+    m_texture = loader.GetTexture();
 }
 
 int Image::GetAllImgCount()
