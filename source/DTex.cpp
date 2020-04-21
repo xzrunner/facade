@@ -27,7 +27,7 @@ void (*DRAW_BEGIN)()   = nullptr;
 void (*DRAW_END)()     = nullptr;
 void (*ERROR_RELOAD)() = nullptr;
 
-std::shared_ptr<ur2::Device> UR_DEV = nullptr;
+const ur2::Device* UR_DEV = nullptr;
 std::shared_ptr<ur2::Context> UR_CTX = nullptr;
 
 ur2::RenderState UR_RS;
@@ -437,6 +437,10 @@ namespace facade
 
 CU_SINGLETON_DEFINITION(DTex);
 
+DTex::DTex()
+{
+}
+
 void DTex::InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)())
 {
 	DRAW_BEGIN = draw_begin;
@@ -444,8 +448,10 @@ void DTex::InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)(
 	ERROR_RELOAD = error_reload;
 }
 
-DTex::DTex()
+void DTex::Init(const ur2::Device& dev)
 {
+    UR_DEV = &dev;
+
 	dtex::RenderAPI::Callback render_cb;
 	render_cb.clear_color_part = clear_color_part;
 	render_cb.set_program      = set_program;
@@ -490,7 +496,8 @@ DTex::DTex()
 	glyph_cb.load_start  = glyph_load_start;
 	glyph_cb.load        = glyph_load;
 	glyph_cb.load_finish = glyph_load_finish;
-	m_cg = new dtex::CacheGlyph(1024, 512, glyph_cb);
+	//m_cg = new dtex::CacheGlyph(*UR_DEV, 1024, 512, glyph_cb);
+    m_cg = new dtex::CacheGlyph(*UR_DEV, 128, 128, glyph_cb);
 	dtex::CacheMgr::Instance()->Add(m_cg, "CG");
 }
 
@@ -553,7 +560,7 @@ void DTex::DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint
 
 void DTex::LoadGlyph(uint32_t* bitmap, int width, int height, uint64_t key)
 {
-	m_cg->Load(bitmap, width, height, key);
+	m_cg->Load(*UR_DEV, bitmap, width, height, key);
 }
 
 bool DTex::QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const

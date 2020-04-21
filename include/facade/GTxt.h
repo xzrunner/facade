@@ -19,6 +19,8 @@ namespace facade
 class GTxt
 {
 public:
+    void Init(const ur2::Device& dev);
+
 	void LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,
 		const std::vector<std::pair<std::string, std::string>>& user_fonts);
 

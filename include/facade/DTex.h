@@ -4,6 +4,7 @@
 #include <SM_Rect.h>
 #include <sx/ResourceUID.h>
 
+namespace ur2 { class Device; }
 namespace dtex { class CacheSymbol; class CacheGlyph; class Texture; struct Rect; }
 
 namespace facade
@@ -12,6 +13,7 @@ namespace facade
 class DTex
 {
 public:
+    void Init(const ur2::Device& dev);
 	void InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)());
 
 	// C2, cache GameObj

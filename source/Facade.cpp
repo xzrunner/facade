@@ -25,12 +25,12 @@ Facade::Facade()
 {
 }
 
-void Facade::Init()
+void Facade::Init(const ur2::Device& dev)
 {
 	et::Particle3d::Init();
 
-	DTex::Instance();
-	GTxt::Instance();
+	DTex::Instance()->Init(dev);
+	GTxt::Instance()->Init(dev);
 
 	for (auto& cb : m_init_cb) {
 		cb();

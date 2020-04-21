@@ -27,8 +27,7 @@
 namespace
 {
 
-std::shared_ptr<ur2::Device> UR_DEV = nullptr;
-std::shared_ptr<ur2::Context> UR_CTX = nullptr;
+const ur2::Device* UR_DEV = nullptr;
 
 /************************************************************************/
 /* render                                                               */
@@ -366,13 +365,19 @@ int GTxt::m_cap_layout = 500;
 
 GTxt::GTxt()
 {
-	gtxt_label_cb_init(draw_glyph);
+}
 
-	gtxt_ft_create();
+void GTxt::Init(const ur2::Device& dev)
+{
+    UR_DEV = &dev;
 
-	gtxt_glyph_create(m_cap_bitmap, m_cap_layout, nullptr, get_uf_layout);
+    gtxt_label_cb_init(draw_glyph);
 
-	gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
+    gtxt_ft_create();
+
+    gtxt_glyph_create(m_cap_bitmap, m_cap_layout, nullptr, get_uf_layout);
+
+    gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
 }
 
 void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
