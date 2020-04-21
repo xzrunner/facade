@@ -80,6 +80,14 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 		rp->pt->AddTexQuad(id, vertices, texcoords, 0xffffffff);
 	} else {
         ur2::RenderState rs;
+        rs.depth_test.enabled = false;
+        rs.facet_culling.enabled = false;
+
+        rs.blending.enabled = true;
+        rs.blending.separately = false;
+        rs.blending.src = ur2::BlendingFactor::One;
+        rs.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
+        rs.blending.equation = ur2::BlendEquation::Add;
 
 		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *rp->ctx, rs, &vertices[0].x, &texcoords[0].x, id, 0xffffffff);
 	}

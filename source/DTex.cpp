@@ -103,6 +103,11 @@ draw_begin()
 	// reset for 2d
     UR_RS.depth_test.enabled = false;
     UR_RS.facet_culling.enabled = false;
+    UR_RS.blending.enabled = true;
+    UR_RS.blending.separately = false;
+    UR_RS.blending.src = ur2::BlendingFactor::One;
+    UR_RS.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
+    UR_RS.blending.equation = ur2::BlendEquation::Add;
 
 	if (DRAW_BEGIN)
 	{
