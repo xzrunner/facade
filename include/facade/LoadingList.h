@@ -9,6 +9,8 @@
 
 #include <map>
 
+namespace ur2 { class Context; }
+
 namespace facade
 {
 
@@ -18,10 +20,10 @@ public:
 	void AddGlyph(sx::UID uid, int unicode, float line_x, const gtxt_glyph_style& gs);
 	void AddSymbol(sx::UID uid, int tex_id, int tex_w, int tex_h, const sm::irect& region);
 
-	bool Flush();
+	bool Flush(ur2::Context& ctx);
 
 private:
-	bool FlushGlyphs();
+	bool FlushGlyphs(ur2::Context& ctx);
 	bool FlushSymbols();
 
 private:

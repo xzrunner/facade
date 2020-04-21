@@ -563,9 +563,9 @@ void DTex::DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint
 	m_c2->Load(tex_id, tex_w, tex_h, r, key, 1, 0);
 }
 
-void DTex::LoadGlyph(uint32_t* bitmap, int width, int height, uint64_t key)
+void DTex::LoadGlyph(ur2::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key)
 {
-	m_cg->Load(*UR_DEV, bitmap, width, height, key);
+	m_cg->Load(*UR_DEV, ctx, bitmap, width, height, key);
 }
 
 bool DTex::QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const
@@ -592,9 +592,9 @@ void DTex::Clear()
 {
 }
 
-bool DTex::Flush(bool cg_to_c2)
+bool DTex::Flush(ur2::Context& ctx, bool cg_to_c2)
 {
-	return m_cg->Flush(cg_to_c2);
+	return m_cg->Flush(ctx, cg_to_c2);
 }
 
 void DTex::DebugDraw() const

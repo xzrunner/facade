@@ -4,7 +4,7 @@
 #include <SM_Rect.h>
 #include <sx/ResourceUID.h>
 
-namespace ur2 { class Device; }
+namespace ur2 { class Device; class Context; }
 namespace dtex { class CacheSymbol; class CacheGlyph; class Texture; struct Rect; }
 
 namespace facade
@@ -27,7 +27,7 @@ public:
 
 	// CG, cache glyph
 	void DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint64_t key);
-	void LoadGlyph(uint32_t* bitmap, int width, int height, uint64_t key);
+	void LoadGlyph(ur2::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key);
 	bool QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const;
 	bool ExistGlyph(uint64_t key) const;
 	void GetGlyphTexInfo(int& id, size_t& w, size_t& h) const;
@@ -35,7 +35,7 @@ public:
 
 	void Clear();
 
-	bool Flush(bool cg_to_c2);
+	bool Flush(ur2::Context& ctx, bool cg_to_c2);
 
 	void DebugDraw() const;
 

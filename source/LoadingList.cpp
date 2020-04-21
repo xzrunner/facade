@@ -33,10 +33,10 @@ void LoadingList::AddSymbol(sx::UID uid, int tex_id, int tex_w, int tex_h, const
 	}
 }
 
-bool LoadingList::Flush()
+bool LoadingList::Flush(ur2::Context& ctx)
 {
 	bool dirty = false;
-	if (FlushGlyphs()) {
+	if (FlushGlyphs(ctx)) {
 		dirty = true;
 	}
 	if (FlushSymbols()) {
@@ -45,7 +45,7 @@ bool LoadingList::Flush()
 	return dirty;
 }
 
-bool LoadingList::FlushGlyphs()
+bool LoadingList::FlushGlyphs(ur2::Context& ctx)
 {
 	bool dirty = false;
 	if (m_glyphs.empty()) {
@@ -64,7 +64,7 @@ bool LoadingList::FlushGlyphs()
 		}
 		int w = static_cast<int>(layout.sizer.width);
 		int h = static_cast<int>(layout.sizer.height);
-		dtex->LoadGlyph(bmp, w, h, itr.first);
+		dtex->LoadGlyph(ctx, bmp, w, h, itr.first);
 		dirty = true;
 	}
 	m_glyphs.clear();

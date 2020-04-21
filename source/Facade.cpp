@@ -88,13 +88,13 @@ void Facade::Update(float dt)
 	model::GlobalClock::Instance()->Update(dt);
 }
 
-bool Facade::Flush(bool dtex_cg_to_c2)
+bool Facade::Flush(ur2::Context& ctx, bool dtex_cg_to_c2)
 {
 	bool dirty = false;
-	if (DTex::Instance()->Flush(dtex_cg_to_c2)) {
+	if (DTex::Instance()->Flush(ctx, dtex_cg_to_c2)) {
 		dirty = true;
 	}
-	if (LoadingList::Instance()->Flush()) {
+	if (LoadingList::Instance()->Flush(ctx)) {
 		dirty = true;
 	}
 	m_last_frame_dirty = dirty;
