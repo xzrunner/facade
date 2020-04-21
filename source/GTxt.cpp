@@ -40,6 +40,7 @@ struct render_params
 	const pt0::Color* add = nullptr;
 	tess::Painter*    pt  = nullptr;
 	bool texcoords_relocate = true;
+    ur2::Context*     ctx = nullptr;
 };
 
 void
@@ -79,12 +80,13 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 		rp->pt->AddTexQuad(id, vertices, texcoords, 0xffffffff);
 	} else {
         ur2::RenderState rs;
-		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *UR_CTX, rs, &vertices[0].x, &texcoords[0].x, id, 0xffffffff);
+
+		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *rp->ctx, rs, &vertices[0].x, &texcoords[0].x, id, 0xffffffff);
 	}
 }
 
 void
-render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const gtxt_draw_style* ds)
+render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const gtxt_draw_style* ds, render_params* rp)
 {
 	const gtxt_decoration* d = &ds->decoration;
 	if (d->type == GRDT_NULL) {
@@ -131,7 +133,7 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 	}
 
     ur2::RenderState rs;
-	pt2::RenderSystem::DrawPainter(*UR_DEV, *UR_CTX, rs, pt);
+	pt2::RenderSystem::DrawPainter(*UR_DEV, *rp->ctx, rs, pt);
 }
 
 void
@@ -140,11 +142,11 @@ render(int id, const float* texcoords, float x, float y, float w, float h, const
 	render_params* rp = (render_params*)ud;
 	if (ds) {
 		if (ds->decoration.type == GRDT_BG) {
-			render_decoration(*rp->mt, x, y, w, h, ds);
+			render_decoration(*rp->mt, x, y, w, h, ds, rp);
 			render_glyph(id, texcoords, x, y, w, h, ds, rp);
 		} else {
 			render_glyph(id, texcoords, x, y, w, h, ds, rp);
-			render_decoration(*rp->mt, x, y, w, h, ds);
+			render_decoration(*rp->mt, x, y, w, h, ds, rp);
 		}
 	} else {
 		struct gtxt_draw_style ds;
@@ -304,7 +306,7 @@ ext_sym_render(void* ext_sym, float x, float y, void* ud) {
 	auto& casset = node->GetSharedComp<n0::CompAsset>();
     ur2::RenderState rs;
 	n2::RenderSystem::Instance()->Draw(
-        *UR_DEV, *UR_CTX, rs, casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp
+        *UR_DEV, *_rp->ctx, rs, casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp
     );
 }
 
@@ -380,7 +382,7 @@ void GTxt::Init(const ur2::Device& dev)
     gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
 }
 
-void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
+void GTxt::Draw(ur2::Context& ctx, const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
 	            const pt0::Color& mul, const pt0::Color& add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
 {
 	gtxt_label_style gtxt_style;
@@ -392,6 +394,7 @@ void GTxt::Draw(const std::string& text, const pt2::Textbox& style, const sm::Ma
 	rp.add = &add;
 	rp.pt  = pt;
 	rp.texcoords_relocate = texcoords_relocate;
+    rp.ctx = &ctx;
 
 	if (richtext) {
 		gtxt_label_draw_richtext(text.c_str(), &gtxt_style, time, (void*)&rp);

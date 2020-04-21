@@ -56,7 +56,7 @@ EasyGUI::EasyGUI()
 	cb.get_label_sz = [](const char* label)->sm::vec2 {
 		return GTxt::Instance()->CalcLabelSize(label, TEXTBOX);
 	};
-	cb.draw_label = [](const char* label, const sm::vec2& pos, float angle, uint32_t color, tess::Painter& pt)
+	cb.draw_label = [](ur2::Context& ctx, const char* label, const sm::vec2& pos, float angle, uint32_t color, tess::Painter& pt)
 	{
 		if (!label) {
 			return;
@@ -72,7 +72,7 @@ EasyGUI::EasyGUI()
 		pt0::Color col;
 		col.FromABGR(color);
 
-		GTxt::Instance()->Draw(label, TEXTBOX, mat, col, pt0::Color(0, 0, 0), 0, false, &pt, true);
+		GTxt::Instance()->Draw(ctx, label, TEXTBOX, mat, col, pt0::Color(0, 0, 0), 0, false, &pt, true);
 	};
 	cb.relocate_texcoords = [](tess::Painter& pt)
 	{
