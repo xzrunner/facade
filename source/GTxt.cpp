@@ -13,6 +13,7 @@
 #include <sx/GlyphStyle.h>
 #include <cpputil/StringHelper.h>
 #include <unirender2/RenderState.h>
+#include <unirender2/Texture.h>
 #include <tessellation/Painter.h>
 #include <painting2/RenderSystem.h>
 #include <painting2/RenderColorCommon.h>
@@ -44,7 +45,7 @@ struct render_params
 };
 
 void
-render_glyph(int id, const float* _texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, render_params* rp)
+render_glyph(const ur2::TexturePtr& tex, const float* _texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, render_params* rp)
 {
 	x += ds->offset_x;
 	y += ds->offset_y;
@@ -77,7 +78,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
 
 	// todo: gray text with filter shader
 	if (rp->pt) {
-		rp->pt->AddTexQuad(id, vertices, texcoords, 0xffffffff);
+		rp->pt->AddTexQuad(tex->GetTexID(), vertices, texcoords, 0xffffffff);
 	} else {
         ur2::RenderState rs;
         rs.depth_test.enabled = false;
@@ -89,7 +90,7 @@ render_glyph(int id, const float* _texcoords, float x, float y, float w, float h
         rs.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
         rs.blending.equation = ur2::BlendEquation::Add;
 
-		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *rp->ctx, rs, &vertices[0].x, &texcoords[0].x, id, 0xffffffff);
+		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *rp->ctx, rs, &vertices[0].x, &texcoords[0].x, tex, 0xffffffff);
 	}
 }
 
@@ -145,15 +146,15 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 }
 
 void
-render(int id, const float* texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, void* ud)
+render(const ur2::TexturePtr& tex, const float* texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, void* ud)
 {
 	render_params* rp = (render_params*)ud;
 	if (ds) {
 		if (ds->decoration.type == GRDT_BG) {
 			render_decoration(*rp->mt, x, y, w, h, ds, rp);
-			render_glyph(id, texcoords, x, y, w, h, ds, rp);
+			render_glyph(tex, texcoords, x, y, w, h, ds, rp);
 		} else {
-			render_glyph(id, texcoords, x, y, w, h, ds, rp);
+			render_glyph(tex, texcoords, x, y, w, h, ds, rp);
 			render_decoration(*rp->mt, x, y, w, h, ds, rp);
 		}
 	} else {
@@ -161,7 +162,7 @@ render(int id, const float* texcoords, float x, float y, float w, float h, const
 		ds.alpha = 1;
 		ds.scale = 1;
 		ds.offset_x = ds.offset_y = 0;
-		render_glyph(id, texcoords, x, y, w, h, &ds, rp);
+		render_glyph(tex, texcoords, x, y, w, h, &ds, rp);
 	}
 }
 
@@ -188,7 +189,8 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 	render_params* rp = (render_params*)ud;
 	if (rp->texcoords_relocate)
 	{
-		int tex_id, block_id;
+        ur2::TexturePtr texture = nullptr;
+		int block_id;
 		int ft_count = gtxt_ft_get_font_cout();
 
 		const float* texcoords = nullptr;
@@ -198,21 +200,21 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 			texcoords = nullptr;
 		} else {
 			exist = true;
-			texcoords = dtex->QuerySymbol(uid, tex_id, block_id);
+			texcoords = dtex->QuerySymbol(uid, texture, block_id);
 		}
 
 		if (texcoords)
 		{
-			render(tex_id, texcoords, x, y, w, h, ds, ud);
+			render(texture, texcoords, x, y, w, h, ds, ud);
 		}
 		else
 		{
 			if (gs->font < ft_count)
 			{
 				float texcoords[8];
-				if (exist && dtex->QueryGlyph(uid, texcoords, tex_id))
+				if (exist && dtex->QueryGlyph(uid, texcoords, texture))
 				{
-					render(tex_id, texcoords, x, y, w, h, ds, ud);
+					render(texture, texcoords, x, y, w, h, ds, ud);
 				}
 				else
 				{
@@ -230,9 +232,9 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 	else
 	{
 		float texcoords[8];
-		int tex_id;
-		if (dtex->QueryGlyph(uid, texcoords, tex_id)) {
-			render(tex_id, texcoords, x, y, w, h, ds, ud);
+		ur2::TexturePtr tex;
+		if (dtex->QueryGlyph(uid, texcoords, tex)) {
+			render(tex, texcoords, x, y, w, h, ds, ud);
 		} else {
 			facade::LoadingList::Instance()->AddGlyph(uid, unicode, line_x, *gs);
 		}

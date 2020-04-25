@@ -1,6 +1,7 @@
 #include "facade/DTex.h"
 #include "facade/RenderContext.h"
 
+#include <unirender2/Texture.h>
 #include <dtex2/RenderAPI.h>
 #include <dtex2/ResourceAPI.h>
 #include <dtex2/CacheAPI.h>
@@ -135,17 +136,18 @@ draw_begin()
 static void
 draw(const float _vertices[8], const float _texcoords[8], int texid)
 {
-	sm::vec2 vertices[4], texcoords[4];
-	for (int i = 0; i < 4; ++i) {
-		vertices[i].x  = _vertices[i * 2];
-		vertices[i].y  = _vertices[i * 2 + 1];
-		texcoords[i].x = _texcoords[i * 2];
-		texcoords[i].y = _texcoords[i * 2 + 1];
-	}
+    // todo: use TexturePtr
+	//sm::vec2 vertices[4], texcoords[4];
+	//for (int i = 0; i < 4; ++i) {
+	//	vertices[i].x  = _vertices[i * 2];
+	//	vertices[i].y  = _vertices[i * 2 + 1];
+	//	texcoords[i].x = _texcoords[i * 2];
+	//	texcoords[i].y = _texcoords[i * 2 + 1];
+	//}
 
-	auto rd = rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE);
-    ur2::RenderState rs;
-	std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawQuad(*UR_CTX, rs, &vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
+	//auto rd = rp::RenderMgr::Instance()->SetRenderer(*UR_DEV, *UR_CTX, rp::RenderType::SPRITE);
+ //   ur2::RenderState rs;
+	//std::static_pointer_cast<rp::SpriteRenderer>(rd)->DrawQuad(*UR_CTX, rs, &vertices[0].x, &texcoords[0].x, texid, 0xffffffff);
 }
 
 static void
@@ -501,8 +503,7 @@ void DTex::Init(const ur2::Device& dev)
 	glyph_cb.load_start  = glyph_load_start;
 	glyph_cb.load        = glyph_load;
 	glyph_cb.load_finish = glyph_load_finish;
-	//m_cg = new dtex::CacheGlyph(*UR_DEV, 1024, 512, glyph_cb);
-    m_cg = new dtex::CacheGlyph(*UR_DEV, 128, 128, glyph_cb);
+	m_cg = new dtex::CacheGlyph(*UR_DEV, 1024, 512, glyph_cb);
 	dtex::CacheMgr::Instance()->Add(m_cg, "CG");
 }
 
@@ -527,7 +528,7 @@ void DTex::LoadSymFinish()
 	m_c2->LoadFinish();
 }
 
-const float* DTex::QuerySymbol(sx::UID sym_id, int& tex_id, int& block_id) const
+const float* DTex::QuerySymbol(sx::UID sym_id, ur2::TexturePtr& texture, int& block_id) const
 {
 	if (!m_c2_enable) {
 		return nullptr;
@@ -536,7 +537,7 @@ const float* DTex::QuerySymbol(sx::UID sym_id, int& tex_id, int& block_id) const
 	int b_id;
 	const dtex::CS_Node* node = m_c2->Query(sym_id, b_id);
 	if (node) {
-		tex_id = m_c2->GetTexID();
+        texture = m_c2->GetTexture();
 		block_id = b_id;
 		return node->GetTexcoords();
 	}
@@ -555,7 +556,12 @@ void DTex::ClearSymbolCache()
 
 int DTex::GetSymCacheTexID() const
 {
-	return m_c2 ? m_c2->GetTexID() : 0;
+    if (!m_c2) {
+        return 0;
+    }
+
+    auto tex = m_c2->GetTexture();
+    return tex ? tex->GetTexID() : 0;
 }
 
 void DTex::DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint64_t key)
@@ -568,9 +574,9 @@ void DTex::LoadGlyph(ur2::Context& ctx, uint32_t* bitmap, int width, int height,
 	m_cg->Load(*UR_DEV, ctx, bitmap, width, height, key);
 }
 
-bool DTex::QueryGlyph(uint64_t key, float* texcoords, int& tex_id) const
+bool DTex::QueryGlyph(uint64_t key, float* texcoords, ur2::TexturePtr& texture) const
 {
-	return m_cg->QueryAndInsert(key, texcoords, tex_id);
+	return m_cg->QueryAndInsert(key, texcoords, texture);
 }
 
 bool DTex::ExistGlyph(uint64_t key) const
@@ -583,9 +589,9 @@ void DTex::GetGlyphTexInfo(int& id, size_t& w, size_t& h) const
 	m_cg->GetFirstPageTexInfo(id, w, h);
 }
 
-bool DTex::QueryGlyphRegion(uint64_t key, int& tex_id, int& xmin, int& ymin, int& xmax, int& ymax) const
+bool DTex::QueryGlyphRegion(uint64_t key, ur2::TexturePtr& texture, int& xmin, int& ymin, int& xmax, int& ymax) const
 {
-	return m_cg->QueryRegion(key, tex_id, xmin, ymin, xmax, ymax);
+	return m_cg->QueryRegion(key, texture, xmin, ymin, xmax, ymax);
 }
 
 void DTex::Clear()

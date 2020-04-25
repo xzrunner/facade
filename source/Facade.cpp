@@ -7,6 +7,7 @@
 #include <emitter/GlobalClock.h>
 #include <anim/GlobalClock.h>
 #include <model/GlobalClock.h>
+#include <unirender2/Texture.h>
 #include <painting0/GlobalClock.h>
 #include <painting2/Callback.h>
 #include <painting2/RenderColorCommon.h>
@@ -51,7 +52,10 @@ void Facade::Init(const ur2::Device& dev)
 	pt2_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, int& out_tex_id)->const float* {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
 		int block_id;
-		return DTex::Instance()->QuerySymbol(uid, out_tex_id, block_id);
+        ur2::TexturePtr tex;
+		auto ret = DTex::Instance()->QuerySymbol(uid, tex, block_id);
+        out_tex_id = tex->GetTexID();
+        return ret;
 	};
 	pt2_cb.add_cache_symbol = [](size_t tex_id, int tex_w, int tex_h, const sm::irect& r) {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
@@ -67,7 +71,10 @@ void Facade::Init(const ur2::Device& dev)
 	rg_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, int& out_tex_id)->const float* {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
 		int block_id;
-		return DTex::Instance()->QuerySymbol(uid, out_tex_id, block_id);
+        ur2::TexturePtr tex;
+		auto ret = DTex::Instance()->QuerySymbol(uid, tex, block_id);
+        out_tex_id = tex ? tex->GetTexID() : 0;
+        return ret;
 	};
 	rg_cb.add_cache_symbol = [](size_t tex_id, int tex_w, int tex_h, const sm::irect& r) {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
