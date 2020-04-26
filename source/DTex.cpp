@@ -1,6 +1,7 @@
 #include "facade/DTex.h"
 #include "facade/RenderContext.h"
 
+#include <unirender2/Factory.h>
 #include <unirender2/Texture.h>
 #include <dtex2/RenderAPI.h>
 #include <dtex2/ResourceAPI.h>
@@ -84,6 +85,7 @@ enable_blend(bool enable)
 {
 	if (enable) {
         UR_RS.blending.enabled = true;
+        UR_RS.blending.separately = false;
         UR_RS.blending.src = ur2::BlendingFactor::SrcAlpha;
         UR_RS.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
 	} else {
@@ -101,15 +103,7 @@ draw_begin()
         rp::RenderMgr::Instance()->Flush(*UR_DEV, *UR_CTX);
     }
 
-	// reset for 2d
-    UR_RS.depth_test.enabled = false;
-    UR_RS.facet_culling.enabled = false;
-    UR_RS.blending.enabled = true;
-    UR_RS.blending.separately = false;
-    UR_RS.blending.src = ur2::BlendingFactor::One;
-    UR_RS.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
-    UR_RS.blending.equation = ur2::BlendEquation::Add;
-
+    UR_RS = ur2::DefaultRenderState2D();
 	if (DRAW_BEGIN)
 	{
 		DRAW_BEGIN();

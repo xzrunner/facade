@@ -14,6 +14,7 @@
 #include <cpputil/StringHelper.h>
 #include <unirender2/RenderState.h>
 #include <unirender2/Texture.h>
+#include <unirender2/Factory.h>
 #include <tessellation/Painter.h>
 #include <painting2/RenderSystem.h>
 #include <painting2/RenderColorCommon.h>
@@ -80,16 +81,7 @@ render_glyph(const ur2::TexturePtr& tex, const float* _texcoords, float x, float
 	if (rp->pt) {
 		rp->pt->AddTexQuad(tex->GetTexID(), vertices, texcoords, 0xffffffff);
 	} else {
-        ur2::RenderState rs;
-        rs.depth_test.enabled = false;
-        rs.facet_culling.enabled = false;
-
-        rs.blending.enabled = true;
-        rs.blending.separately = false;
-        rs.blending.src = ur2::BlendingFactor::One;
-        rs.blending.dst = ur2::BlendingFactor::OneMinusSrcAlpha;
-        rs.blending.equation = ur2::BlendEquation::Add;
-
+        auto rs = ur2::DefaultRenderState2D();
 		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *rp->ctx, rs, &vertices[0].x, &texcoords[0].x, tex, 0xffffffff);
 	}
 }
