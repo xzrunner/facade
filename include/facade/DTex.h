@@ -5,8 +5,8 @@
 #include <sx/ResourceUID.h>
 #include <unirender2/typedef.h>
 
-namespace ur2 { class Device; class Context; }
-namespace dtex { class CacheSymbol; class CacheGlyph; class Texture; struct Rect; }
+namespace ur2 { class Device; class Context; class ShaderProgram; class VertexArray; }
+namespace dtex { class PixelBuffer; class TextureBuffer; class TexRenderer; }
 
 namespace facade
 {
@@ -17,34 +17,34 @@ public:
     void Init(const ur2::Device& dev);
 	void InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)());
 
-	// C2, cache GameObj
+	// cache GameObj
 	void LoadSymStart();
-	void LoadSymbol(sx::UID sym_id, int tex_id, int tex_w, int tex_h, const sm::irect& region,
+	void LoadSymbol(sx::UID sym_id, const ur2::TexturePtr& tex, const sm::irect& region,
 		int padding = 0, int extrude = 0, int src_extrude = 0);
-	void LoadSymFinish();
+	void LoadSymFinish(ur2::Context& ctx);
 	const float* QuerySymbol(sx::UID sym_id, ur2::TexturePtr& texture, int& block_id) const;
-	void ClearSymbolCache();
-	int GetSymCacheTexID() const;
 
-	// CG, cache glyph
-	void DrawGlyph(int tex_id, int tex_w, int tex_h, const dtex::Rect& r, uint64_t key);
+	// cache glyph
 	void LoadGlyph(ur2::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key);
 	bool QueryGlyph(uint64_t key, float* texcoords, ur2::TexturePtr& texture) const;
 	bool ExistGlyph(uint64_t key) const;
 	void GetGlyphTexInfo(int& id, size_t& w, size_t& h) const;
-	bool QueryGlyphRegion(uint64_t key, ur2::TexturePtr& texture, int& xmin, int& ymin, int& xmax, int& ymax) const;
 
 	void Clear();
 
-	bool Flush(ur2::Context& ctx, bool cg_to_c2);
+	bool Flush(ur2::Context& ctx);
 
-	void DebugDraw() const;
+	void DebugDraw(ur2::Context& ctx) const;
 
 private:
-	dtex::CacheSymbol* m_c2;
+    std::unique_ptr<dtex::TextureBuffer> m_texture_buffer = nullptr;
 	bool m_c2_enable;
 
-	dtex::CacheGlyph* m_cg;
+    std::unique_ptr<dtex::PixelBuffer> m_glyph_buffer = nullptr;
+    std::unique_ptr<dtex::TexRenderer> m_tex_renderer = nullptr;
+
+    std::shared_ptr<ur2::ShaderProgram> m_debug_shader = nullptr;
+    std::shared_ptr<ur2::VertexArray>   m_debug_va = nullptr;
 
 	CU_SINGLETON_DECLARATION(DTex)
 

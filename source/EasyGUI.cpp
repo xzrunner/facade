@@ -80,8 +80,8 @@ EasyGUI::EasyGUI()
 		{
 			assert(begin < end);
 			sm::irect qr(0, 0, tex.w, tex.h);
-			int cached_texid;
-			auto cached_texcoords = rp::Callback::QueryCachedTexQuad(tex.id, qr, cached_texid);
+            ur2::TexturePtr cached_tex = nullptr;
+			auto cached_texcoords = rp::Callback::QueryCachedTexQuad(tex.id, qr, cached_tex);
 			if (cached_texcoords)
 			{
 				float x = cached_texcoords[0];
@@ -99,7 +99,7 @@ EasyGUI::EasyGUI()
 			}
 			else
 			{
-				rp::Callback::AddCacheSymbol(tex.id, tex.w, tex.h, qr);
+				rp::Callback::AddCacheSymbol(cached_tex, qr);
 			}
 		};
 

@@ -43,23 +43,24 @@ void Facade::Init(const ur2::Device& dev)
         ur2::Context& ctx, const std::string& text, const pt2::Textbox& style,
 		const sm::Matrix2D& mat, const pt0::Color& mul_col, const pt0::Color& add_col) {
 		GTxt::Draw(ctx, text, style, mat, mul_col, add_col, 0, false);
-	};pt2_cb.calc_label_size = [](const std::string& text, const pt2::Textbox& style)->sm::vec2 {
+	};
+    pt2_cb.calc_label_size = [](const std::string& text, const pt2::Textbox& style)->sm::vec2 {
 		return GTxt::CalcLabelSize(text, style);
 	};
 	pt2_cb.get_bounding = [](const n0::CompAsset& casset)->sm::rect {
 		return n2::AABBSystem::GetBounding(casset);
 	};
-	pt2_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, int& out_tex_id)->const float* {
+	pt2_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, ur2::TexturePtr& out_tex)->const float* {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
 		int block_id;
         ur2::TexturePtr tex;
 		auto ret = DTex::Instance()->QuerySymbol(uid, tex, block_id);
-        out_tex_id = tex->GetTexID();
+        out_tex = tex;
         return ret;
 	};
-	pt2_cb.add_cache_symbol = [](size_t tex_id, int tex_w, int tex_h, const sm::irect& r) {
-		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
-		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
+	pt2_cb.add_cache_symbol = [](const ur2::TexturePtr& tex, const sm::irect& r) {
+		sx::UID uid = sx::ResourceUID::TexQuad(tex->GetTexID(), r.xmin, r.ymin, r.xmax, r.ymax);
+		LoadingList::Instance()->AddSymbol(uid, tex, r);
 	};
 	pt2::Callback::RegisterCallback(pt2_cb);
 
@@ -68,17 +69,17 @@ void Facade::Init(const ur2::Device& dev)
 
 	// rendergraph
 	rp::Callback::Funs rg_cb;
-	rg_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, int& out_tex_id)->const float* {
+	rg_cb.query_cached_tex_quad = [](size_t tex_id, const sm::irect& r, ur2::TexturePtr& out_tex)->const float* {
 		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
 		int block_id;
         ur2::TexturePtr tex;
 		auto ret = DTex::Instance()->QuerySymbol(uid, tex, block_id);
-        out_tex_id = tex ? tex->GetTexID() : 0;
+        out_tex = tex;
         return ret;
 	};
-	rg_cb.add_cache_symbol = [](size_t tex_id, int tex_w, int tex_h, const sm::irect& r) {
-		sx::UID uid = sx::ResourceUID::TexQuad(tex_id, r.xmin, r.ymin, r.xmax, r.ymax);
-		LoadingList::Instance()->AddSymbol(uid, tex_id, tex_w, tex_h, r);
+	rg_cb.add_cache_symbol = [](const ur2::TexturePtr& tex, const sm::irect& r) {
+		sx::UID uid = sx::ResourceUID::TexQuad(tex->GetTexID(), r.xmin, r.ymin, r.xmax, r.ymax);
+		LoadingList::Instance()->AddSymbol(uid, tex, r);
 	};
 	rp::Callback::RegisterCallback(rg_cb);
 }
@@ -95,10 +96,10 @@ void Facade::Update(float dt)
 	model::GlobalClock::Instance()->Update(dt);
 }
 
-bool Facade::Flush(ur2::Context& ctx, bool dtex_cg_to_c2)
+bool Facade::Flush(ur2::Context& ctx)
 {
 	bool dirty = false;
-	if (DTex::Instance()->Flush(ctx, dtex_cg_to_c2)) {
+	if (DTex::Instance()->Flush(ctx)) {
 		dirty = true;
 	}
 	if (LoadingList::Instance()->Flush(ctx)) {

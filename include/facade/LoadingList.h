@@ -4,6 +4,7 @@
 #include <gtxt_glyph.h>
 #include <SM_Rect.h>
 #include <sx/ResourceUID.h>
+#include <unirender2/typedef.h>
 
 #include <boost/noncopyable.hpp>
 
@@ -18,13 +19,13 @@ class LoadingList : boost::noncopyable
 {
 public:
 	void AddGlyph(sx::UID uid, int unicode, float line_x, const gtxt_glyph_style& gs);
-	void AddSymbol(sx::UID uid, int tex_id, int tex_w, int tex_h, const sm::irect& region);
+	void AddSymbol(sx::UID uid, const ur2::TexturePtr& tex, const sm::irect& region);
 
 	bool Flush(ur2::Context& ctx);
 
 private:
 	bool FlushGlyphs(ur2::Context& ctx);
-	bool FlushSymbols();
+	bool FlushSymbols(ur2::Context& ctx);
 
 private:
 	struct Glyph
@@ -36,8 +37,7 @@ private:
 
 	struct Symbol
 	{
-		int tex_id;
-		int tex_w, tex_h;
+        ur2::TexturePtr tex = nullptr;
 		sm::irect region;
 	};
 

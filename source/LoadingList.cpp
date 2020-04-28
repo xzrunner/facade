@@ -25,11 +25,11 @@ void LoadingList::AddGlyph(sx::UID uid, int unicode, float line_x, const gtxt_gl
 	}
 }
 
-void LoadingList::AddSymbol(sx::UID uid, int tex_id, int tex_w, int tex_h, const sm::irect& region)
+void LoadingList::AddSymbol(sx::UID uid, const ur2::TexturePtr& tex, const sm::irect& region)
 {
 	auto itr = m_symbols.find(uid);
 	if (itr == m_symbols.end()) {
-		m_symbols.insert({ uid,{ tex_id, tex_w, tex_h, region } });
+		m_symbols.insert({ uid,{ tex, region } });
 	}
 }
 
@@ -39,7 +39,7 @@ bool LoadingList::Flush(ur2::Context& ctx)
 	if (FlushGlyphs(ctx)) {
 		dirty = true;
 	}
-	if (FlushSymbols()) {
+	if (FlushSymbols(ctx)) {
 		dirty = true;
 	}
 	return dirty;
@@ -72,7 +72,7 @@ bool LoadingList::FlushGlyphs(ur2::Context& ctx)
 	return dirty;
 }
 
-bool LoadingList::FlushSymbols()
+bool LoadingList::FlushSymbols(ur2::Context& ctx)
 {
 	if (m_symbols.empty()) {
 		return false;
@@ -82,9 +82,9 @@ bool LoadingList::FlushSymbols()
 	dtex->LoadSymStart();
 	for (auto& itr : m_symbols) {
 		auto& s = itr.second;
-		dtex->LoadSymbol(itr.first, s.tex_id, s.tex_w, s.tex_h, s.region, 0, SYM_EXTRUDE);
+		dtex->LoadSymbol(itr.first, s.tex, s.region, 0, SYM_EXTRUDE);
 	}
-	dtex->LoadSymFinish();
+	dtex->LoadSymFinish(ctx);
 	m_symbols.clear();
 
 	return true;

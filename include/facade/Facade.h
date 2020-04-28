@@ -15,7 +15,7 @@ class Facade
 public:
 	void Init(const ur2::Device& dev);
 	void Update(float dt);
-	bool Flush(ur2::Context& ctx, bool dtex_cg_to_c2);
+	bool Flush(ur2::Context& ctx);
 	bool IsLastFrameDirty() const { return m_last_frame_dirty; }
 
 	void AddInitCB(std::function<void()> cb) {
