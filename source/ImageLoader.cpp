@@ -7,8 +7,8 @@
 #include <gimg_utility.h>
 #include <fs_file.h>
 #include <guard/check.h>
-#include <unirender2/Device.h>
-#include <unirender2/Bitmap.h>
+#include <unirender/Device.h>
+#include <unirender/Bitmap.h>
 #include <renderpipeline/HDREquirectangularToCubemap.h>
 
 #include <boost/filesystem.hpp>
@@ -24,9 +24,9 @@ ImageLoader::ImageLoader(const std::string& res_path)
 {
 }
 
-bool ImageLoader::Load(const ur2::Device& dev, ur2::TextureWrap wrap,
-                       ur2::TextureMinificationFilter min_filter,
-                       ur2::TextureMagnificationFilter mag_filter)
+bool ImageLoader::Load(const ur::Device& dev, ur::TextureWrap wrap,
+                       ur::TextureMinificationFilter min_filter,
+                       ur::TextureMagnificationFilter mag_filter)
 {
 	return LoadRaw(dev, wrap, min_filter, mag_filter);
 
@@ -67,9 +67,9 @@ bool ImageLoader::Load(const ur2::Device& dev, ur2::TextureWrap wrap,
 //	return true;
 //}
 
-bool ImageLoader::LoadRaw(const ur2::Device& dev, ur2::TextureWrap wrap,
-                          ur2::TextureMinificationFilter min_filter,
-                          ur2::TextureMagnificationFilter mag_filter)
+bool ImageLoader::LoadRaw(const ur::Device& dev, ur::TextureWrap wrap,
+                          ur::TextureMinificationFilter min_filter,
+                          ur::TextureMagnificationFilter mag_filter)
 {
 	if (!boost::filesystem::is_regular_file(m_res_path)) {
 		return false;
@@ -81,12 +81,12 @@ bool ImageLoader::LoadRaw(const ur2::Device& dev, ur2::TextureWrap wrap,
 		return false;
 	}
 
-    //m_type = ur2::TextureTarget::Texture2D;
+    //m_type = ur::TextureTarget::Texture2D;
     //auto file_type = gimg_file_type(m_res_path.c_str());
     //switch (file_type)
     //{
     //case FILE_HDR:
-    //    m_type = ur2::TextureTarget::TextureCubeMap;
+    //    m_type = ur::TextureTarget::TextureCubeMap;
     //    break;
     //}
 
@@ -94,63 +94,63 @@ bool ImageLoader::LoadRaw(const ur2::Device& dev, ur2::TextureWrap wrap,
 	//	gimg_pre_mul_alpha(pixels, w, h);
 	//}
 
-    ur2::TextureFormat tf;
+    ur::TextureFormat tf;
     int channels = 0;
 	switch (fmt)
 	{
 	case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
-		tf =  ur2::TextureFormat::A8;
+		tf =  ur::TextureFormat::A8;
         channels = 1;
 		break;
     case GPF_RED:
-        tf =  ur2::TextureFormat::RED;
+        tf =  ur::TextureFormat::RED;
         channels = 1;
         break;
 	case GPF_RGB:
-		tf =  ur2::TextureFormat::RGB;
+		tf =  ur::TextureFormat::RGB;
         channels = 3;
 		break;
 	case GPF_RGBA8:
-		tf =  ur2::TextureFormat::RGBA8;
+		tf =  ur::TextureFormat::RGBA8;
         channels = 4;
 		break;
 	case GPF_BGRA_EXT:
-		tf =  ur2::TextureFormat::BGRA_EXT;
+		tf =  ur::TextureFormat::BGRA_EXT;
         channels = 4;
 		break;
 	case GPF_BGR_EXT:
-		tf =  ur2::TextureFormat::BGR_EXT;
+		tf =  ur::TextureFormat::BGR_EXT;
         channels = 3;
 		break;
     case GPF_RGBA16F:
-        tf =  ur2::TextureFormat::RGBA16F;
+        tf =  ur::TextureFormat::RGBA16F;
         channels = 4;
         break;
     case GPF_RGB16F:
-        tf =  ur2::TextureFormat::RGB16F;
+        tf =  ur::TextureFormat::RGB16F;
         channels = 3;
         break;
     case GPF_RGB32F:
-        tf =  ur2::TextureFormat::RGB32F;
+        tf =  ur::TextureFormat::RGB32F;
         channels = 3;
         break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
-		tf =  ur2::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
         channels = 4;
 		break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT3_EXT:
-		tf =  ur2::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
+		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT3_EXT;
         channels = 4;
 		break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT5_EXT:
-		tf =  ur2::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT5_EXT;
         channels = 4;
 		break;
 	default:
 		GD_REPORT_ASSERT("unknown type.");
 	}
 
-    auto bmp = std::make_shared<ur2::Bitmap>(w, h, channels, pixels);
+    auto bmp = std::make_shared<ur::Bitmap>(w, h, channels, pixels);
 	free(pixels);
     m_tex = dev.CreateTexture(*bmp, tf);
 

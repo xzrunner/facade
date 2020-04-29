@@ -4,13 +4,13 @@
 #include <gtxt_glyph.h>
 #include <SM_Rect.h>
 #include <sx/ResourceUID.h>
-#include <unirender2/typedef.h>
+#include <unirender/typedef.h>
 
 #include <boost/noncopyable.hpp>
 
 #include <map>
 
-namespace ur2 { class Context; }
+namespace ur { class Context; }
 
 namespace facade
 {
@@ -19,13 +19,13 @@ class LoadingList : boost::noncopyable
 {
 public:
 	void AddGlyph(sx::UID uid, int unicode, float line_x, const gtxt_glyph_style& gs);
-	void AddSymbol(sx::UID uid, const ur2::TexturePtr& tex, const sm::irect& region);
+	void AddSymbol(sx::UID uid, const ur::TexturePtr& tex, const sm::irect& region);
 
-	bool Flush(ur2::Context& ctx);
+	bool Flush(ur::Context& ctx);
 
 private:
-	bool FlushGlyphs(ur2::Context& ctx);
-	bool FlushSymbols(ur2::Context& ctx);
+	bool FlushGlyphs(ur::Context& ctx);
+	bool FlushSymbols(ur::Context& ctx);
 
 private:
 	struct Glyph
@@ -37,7 +37,7 @@ private:
 
 	struct Symbol
 	{
-        ur2::TexturePtr tex = nullptr;
+        ur::TexturePtr tex = nullptr;
 		sm::irect region;
 	};
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <unirender2/typedef.h>
+#include <unirender/typedef.h>
 
 #include <memory>
 #include <string>
 
-namespace ur2 { class Device; }
+namespace ur { class Device; }
 
 namespace facade
 {
@@ -13,7 +13,7 @@ namespace facade
 class Image3D
 {
 public:
-    Image3D(const ur2::Device* dev) : m_dev(dev) {}
+    Image3D(const ur::Device* dev) : m_dev(dev) {}
 
 	// for ResPool
 	bool LoadFromFile(const std::string& filepath);
@@ -27,11 +27,11 @@ public:
 	auto& GetTexture() const { return m_texture; }
 
 private:
-    const ur2::Device* m_dev;
+    const ur::Device* m_dev;
 
 	std::string m_filepath;
 
-	ur2::TexturePtr m_texture = nullptr;
+	ur::TexturePtr m_texture = nullptr;
 
 }; // Image3D
 

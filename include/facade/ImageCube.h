@@ -1,10 +1,10 @@
 #pragma once
 
-#include <unirender2/typedef.h>
+#include <unirender/typedef.h>
 
 #include <string>
 
-namespace ur2 { class Device; }
+namespace ur { class Device; }
 
 namespace facade
 {
@@ -12,7 +12,7 @@ namespace facade
 class ImageCube
 {
 public:
-    ImageCube(const ur2::Device* dev) : m_dev(dev) {}
+    ImageCube(const ur::Device* dev) : m_dev(dev) {}
 
     // for ResPool
     bool LoadFromFile(const std::string& filepath);
@@ -22,11 +22,11 @@ public:
     const std::string& GetResPath() const { return m_filepath; }
 
 private:
-    const ur2::Device* m_dev = nullptr;
+    const ur::Device* m_dev = nullptr;
 
     std::string m_filepath;
 
-    ur2::TexturePtr m_texture = nullptr;
+    ur::TexturePtr m_texture = nullptr;
 
 }; // ImageCube
 

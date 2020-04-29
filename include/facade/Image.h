@@ -1,11 +1,11 @@
 #pragma once
 
-#include <unirender2/typedef.h>
+#include <unirender/typedef.h>
 
 #include <string>
 #include <memory>
 
-namespace ur2 { class Device; }
+namespace ur { class Device; }
 
 namespace facade
 {
@@ -15,10 +15,10 @@ class ImageLoader;
 class Image
 {
 public:
-	Image(const ur2::Device* dev);
-	Image(const ur2::Device& dev, int pkg_id,
+	Image(const ur::Device* dev);
+	Image(const ur::Device& dev, int pkg_id,
         const std::string& res_path, bool async);
-	Image(const ur2::Device& dev, const ur2::TexturePtr& tex);
+	Image(const ur::Device& dev, const ur::TexturePtr& tex);
 	virtual ~Image();
 
 	// for ResPool
@@ -48,10 +48,10 @@ protected:
 
 	std::string m_res_path;
 
-	ur2::TexturePtr m_texture = nullptr;
+	ur::TexturePtr m_texture = nullptr;
 
 private:
-    const ur2::Device& m_dev;
+    const ur::Device& m_dev;
 
 }; // Image
 

@@ -5,7 +5,7 @@
 #include <vector>
 #include <functional>
 
-namespace ur2 { class Device; class Context; }
+namespace ur { class Device; class Context; }
 
 namespace facade
 {
@@ -13,9 +13,9 @@ namespace facade
 class Facade
 {
 public:
-	void Init(const ur2::Device& dev);
+	void Init(const ur::Device& dev);
 	void Update(float dt);
-	bool Flush(ur2::Context& ctx);
+	bool Flush(ur::Context& ctx);
 	bool IsLastFrameDirty() const { return m_last_frame_dirty; }
 
 	void AddInitCB(std::function<void()> cb) {

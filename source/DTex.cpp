@@ -1,14 +1,14 @@
 #include "facade/DTex.h"
 
-#include <unirender2/Device.h>
-#include <unirender2/Context.h>
-#include <unirender2/IndexBuffer.h>
-#include <unirender2/VertexBuffer.h>
-#include <unirender2/VertexArray.h>
-#include <unirender2/VertexBufferAttribute.h>
-#include <unirender2/ComponentDataType.h>
-#include <unirender2/DrawState.h>
-#include <unirender2/Factory.h>
+#include <unirender/Device.h>
+#include <unirender/Context.h>
+#include <unirender/IndexBuffer.h>
+#include <unirender/VertexBuffer.h>
+#include <unirender/VertexArray.h>
+#include <unirender/VertexBufferAttribute.h>
+#include <unirender/ComponentDataType.h>
+#include <unirender/DrawState.h>
+#include <unirender/Factory.h>
 #include <dtex/TextureBuffer.h>
 #include <dtex/PixelBuffer.h>
 #include <dtex/TexRenderer.h>
@@ -16,8 +16,8 @@
 namespace
 {
 
-const ur2::Device* UR_DEV = nullptr;
-std::shared_ptr<ur2::Context> UR_CTX = nullptr;
+const ur::Device* UR_DEV = nullptr;
+std::shared_ptr<ur::Context> UR_CTX = nullptr;
 
 const char* vs = R"(
 #version 330 core
@@ -62,7 +62,7 @@ void DTex::InitHook(void(*draw_begin)(), void(*draw_end)(), void(*error_reload)(
 {
 }
 
-void DTex::Init(const ur2::Device& dev)
+void DTex::Init(const ur::Device& dev)
 {
     UR_DEV = &dev;
 
@@ -75,7 +75,7 @@ void DTex::Init(const ur2::Device& dev)
 
     m_debug_va = dev.CreateVertexArray();
 
-    auto usage = ur2::BufferUsageHint::StaticDraw;
+    auto usage = ur::BufferUsageHint::StaticDraw;
 
     auto ibuf = dev.CreateIndexBuffer(usage, 0);
     auto ibuf_sz = sizeof(unsigned short) * 6;
@@ -84,7 +84,7 @@ void DTex::Init(const ur2::Device& dev)
     ibuf->ReadFromMemory(indices, ibuf_sz, 0);
     m_debug_va->SetIndexBuffer(ibuf);
 
-    auto vbuf = dev.CreateVertexBuffer(ur2::BufferUsageHint::StaticDraw, 0);
+    auto vbuf = dev.CreateVertexBuffer(ur::BufferUsageHint::StaticDraw, 0);
     auto vbuf_sz = sizeof(float) * 4 * 4;
     vbuf->Reset(vbuf_sz);
     sm::vec2 min(-1, -1);
@@ -100,9 +100,9 @@ void DTex::Init(const ur2::Device& dev)
 
     m_debug_va->SetVertexBufferAttrs({
         // pos
-        std::make_shared<ur2::VertexBufferAttribute>(ur2::ComponentDataType::Float, 2, 0, 16),
+        std::make_shared<ur::VertexBufferAttribute>(ur::ComponentDataType::Float, 2, 0, 16),
         // uv
-        std::make_shared<ur2::VertexBufferAttribute>(ur2::ComponentDataType::Float, 2, 8, 16)
+        std::make_shared<ur::VertexBufferAttribute>(ur::ComponentDataType::Float, 2, 8, 16)
     });
 
     m_debug_va->SetVertexBuffer(vbuf);
@@ -113,7 +113,7 @@ void DTex::LoadSymStart()
     m_texture_buffer->LoadStart();
 }
 
-void DTex::LoadSymbol(sx::UID sym_id, const ur2::TexturePtr& tex, const sm::irect& region,
+void DTex::LoadSymbol(sx::UID sym_id, const ur::TexturePtr& tex, const sm::irect& region,
 	                  int padding, int extrude, int src_extrude)
 {
 	dtex::Rect r;
@@ -124,12 +124,12 @@ void DTex::LoadSymbol(sx::UID sym_id, const ur2::TexturePtr& tex, const sm::irec
     m_texture_buffer->Load(tex, r, sym_id, padding, extrude, src_extrude);
 }
 
-void DTex::LoadSymFinish(ur2::Context& ctx)
+void DTex::LoadSymFinish(ur::Context& ctx)
 {
     m_texture_buffer->LoadFinish(ctx, *m_tex_renderer);
 }
 
-const float* DTex::QuerySymbol(sx::UID sym_id, ur2::TexturePtr& texture, int& block_id) const
+const float* DTex::QuerySymbol(sx::UID sym_id, ur::TexturePtr& texture, int& block_id) const
 {
 	if (!m_c2_enable) {
 		return nullptr;
@@ -149,12 +149,12 @@ const float* DTex::QuerySymbol(sx::UID sym_id, ur2::TexturePtr& texture, int& bl
     return nullptr;
 }
 
-void DTex::LoadGlyph(ur2::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key)
+void DTex::LoadGlyph(ur::Context& ctx, uint32_t* bitmap, int width, int height, uint64_t key)
 {
 	m_glyph_buffer->Load(*UR_DEV, ctx, bitmap, width, height, key);
 }
 
-bool DTex::QueryGlyph(uint64_t key, float* texcoords, ur2::TexturePtr& texture) const
+bool DTex::QueryGlyph(uint64_t key, float* texcoords, ur::TexturePtr& texture) const
 {
 	return m_glyph_buffer->QueryAndInsert(key, texcoords, texture);
 }
@@ -173,22 +173,22 @@ void DTex::Clear()
 {
 }
 
-bool DTex::Flush(ur2::Context& ctx)
+bool DTex::Flush(ur::Context& ctx)
 {
 	return m_glyph_buffer->Flush(ctx, *m_texture_buffer, *m_tex_renderer);
 }
 
-void DTex::DebugDraw(ur2::Context& ctx) const
+void DTex::DebugDraw(ur::Context& ctx) const
 {
-    ur2::DrawState ds;
+    ur::DrawState ds;
     ds.program = m_debug_shader;
-    ds.render_state = ur2::DefaultRenderState2D();
+    ds.render_state = ur::DefaultRenderState2D();
     ds.vertex_array = m_debug_va;
 
     auto tex = m_texture_buffer->GetTexture();
     ctx.SetTexture(0, tex);
 
-    ctx.Draw(ur2::PrimitiveType::Triangles, ds, nullptr);
+    ctx.Draw(ur::PrimitiveType::Triangles, ds, nullptr);
 }
 
 }

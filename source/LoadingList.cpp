@@ -25,7 +25,7 @@ void LoadingList::AddGlyph(sx::UID uid, int unicode, float line_x, const gtxt_gl
 	}
 }
 
-void LoadingList::AddSymbol(sx::UID uid, const ur2::TexturePtr& tex, const sm::irect& region)
+void LoadingList::AddSymbol(sx::UID uid, const ur::TexturePtr& tex, const sm::irect& region)
 {
 	auto itr = m_symbols.find(uid);
 	if (itr == m_symbols.end()) {
@@ -33,7 +33,7 @@ void LoadingList::AddSymbol(sx::UID uid, const ur2::TexturePtr& tex, const sm::i
 	}
 }
 
-bool LoadingList::Flush(ur2::Context& ctx)
+bool LoadingList::Flush(ur::Context& ctx)
 {
 	bool dirty = false;
 	if (FlushGlyphs(ctx)) {
@@ -45,7 +45,7 @@ bool LoadingList::Flush(ur2::Context& ctx)
 	return dirty;
 }
 
-bool LoadingList::FlushGlyphs(ur2::Context& ctx)
+bool LoadingList::FlushGlyphs(ur::Context& ctx)
 {
 	bool dirty = false;
 	if (m_glyphs.empty()) {
@@ -72,7 +72,7 @@ bool LoadingList::FlushGlyphs(ur2::Context& ctx)
 	return dirty;
 }
 
-bool LoadingList::FlushSymbols(ur2::Context& ctx)
+bool LoadingList::FlushSymbols(ur::Context& ctx)
 {
 	if (m_symbols.empty()) {
 		return false;

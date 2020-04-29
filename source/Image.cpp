@@ -2,8 +2,8 @@
 #include "facade/RenderContext.h"
 #include "facade/ImageLoader.h"
 
-#include <unirender2/Device.h>
-#include <unirender2/Texture.h>
+#include <unirender/Device.h>
+#include <unirender/Texture.h>
 #include <stat/StatImages.h>
 
 #include <assert.h>
@@ -13,14 +13,14 @@ namespace facade
 
 static int ALL_IMG_COUNT = 0;
 
-Image::Image(const ur2::Device* dev)
+Image::Image(const ur::Device* dev)
 	: m_dev(*dev)
     , m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
 {
 	++ALL_IMG_COUNT;
 }
 
-Image::Image(const ur2::Device& dev, int pkg_id, const std::string& res_path, bool async)
+Image::Image(const ur::Device& dev, int pkg_id, const std::string& res_path, bool async)
 	: m_dev(dev)
     , m_pkg_id(pkg_id)
 	, m_res_path(res_path)
@@ -43,7 +43,7 @@ Image::Image(const ur2::Device& dev, int pkg_id, const std::string& res_path, bo
 	}
 }
 
-Image::Image(const ur2::Device& dev, const ur2::TexturePtr& tex)
+Image::Image(const ur::Device& dev, const ur::TexturePtr& tex)
 	: m_dev(dev)
     , m_pkg_id(st::StatImages::UNKNOWN_IMG_ID)
 	, m_texture(tex)

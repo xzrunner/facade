@@ -9,7 +9,7 @@
 
 struct gtxt_label_style;
 
-namespace ur2 { class Device; class Context; }
+namespace ur { class Device; class Context; }
 namespace pt0 { class Color; }
 namespace pt2 { class Textbox; }
 namespace tess { class Painter; }
@@ -20,12 +20,12 @@ namespace facade
 class GTxt
 {
 public:
-    void Init(const ur2::Device& dev);
+    void Init(const ur::Device& dev);
 
 	void LoadFonts(const std::vector<std::pair<std::string, std::string>>& fonts,
 		const std::vector<std::pair<std::string, std::string>>& user_fonts);
 
-	static void Draw(ur2::Context& ctx, const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
+	static void Draw(ur::Context& ctx, const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
 		const pt0::Color& mul, const pt0::Color& add, int time, bool richtext, tess::Painter* pt = nullptr, bool texcoords_relocate = true);
 
 	static sm::vec2 CalcLabelSize(const std::string& text, const pt2::Textbox& style);

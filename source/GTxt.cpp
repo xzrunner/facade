@@ -12,9 +12,9 @@
 #include <sx/ResourceUID.h>
 #include <sx/GlyphStyle.h>
 #include <cpputil/StringHelper.h>
-#include <unirender2/RenderState.h>
-#include <unirender2/Texture.h>
-#include <unirender2/Factory.h>
+#include <unirender/RenderState.h>
+#include <unirender/Texture.h>
+#include <unirender/Factory.h>
 #include <tessellation/Painter.h>
 #include <painting2/RenderSystem.h>
 #include <painting2/RenderColorCommon.h>
@@ -29,7 +29,7 @@
 namespace
 {
 
-const ur2::Device* UR_DEV = nullptr;
+const ur::Device* UR_DEV = nullptr;
 
 /************************************************************************/
 /* render                                                               */
@@ -42,11 +42,11 @@ struct render_params
 	const pt0::Color* add = nullptr;
 	tess::Painter*    pt  = nullptr;
 	bool texcoords_relocate = true;
-    ur2::Context*     ctx = nullptr;
+    ur::Context*     ctx = nullptr;
 };
 
 void
-render_glyph(const ur2::TexturePtr& tex, const float* _texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, render_params* rp)
+render_glyph(const ur::TexturePtr& tex, const float* _texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, render_params* rp)
 {
 	x += ds->offset_x;
 	y += ds->offset_y;
@@ -81,7 +81,7 @@ render_glyph(const ur2::TexturePtr& tex, const float* _texcoords, float x, float
 	if (rp->pt) {
 		rp->pt->AddTexQuad(tex->GetTexID(), vertices, texcoords, 0xffffffff);
 	} else {
-        auto rs = ur2::DefaultRenderState2D();
+        auto rs = ur::DefaultRenderState2D();
 		pt2::RenderSystem::DrawTexQuad(*UR_DEV, *rp->ctx, rs, &vertices[0].x, &texcoords[0].x, tex, 0xffffffff);
 	}
 }
@@ -133,12 +133,12 @@ render_decoration(const N2_MAT& mat, float x, float y, float w, float h, const g
 		}
 	}
 
-    ur2::RenderState rs;
+    ur::RenderState rs;
 	pt2::RenderSystem::DrawPainter(*UR_DEV, *rp->ctx, rs, pt);
 }
 
 void
-render(const ur2::TexturePtr& tex, const float* texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, void* ud)
+render(const ur::TexturePtr& tex, const float* texcoords, float x, float y, float w, float h, const gtxt_draw_style* ds, void* ud)
 {
 	render_params* rp = (render_params*)ud;
 	if (ds) {
@@ -181,7 +181,7 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 	render_params* rp = (render_params*)ud;
 	if (rp->texcoords_relocate)
 	{
-        ur2::TexturePtr texture = nullptr;
+        ur::TexturePtr texture = nullptr;
 		int block_id;
 		int ft_count = gtxt_ft_get_font_cout();
 
@@ -224,7 +224,7 @@ draw_glyph(int unicode, float x, float y, float w, float h, float start_x,
 	else
 	{
 		float texcoords[8];
-		ur2::TexturePtr tex;
+		ur::TexturePtr tex;
 		if (dtex->QueryGlyph(uid, texcoords, tex)) {
 			render(tex, texcoords, x, y, w, h, ds, ud);
 		} else {
@@ -306,7 +306,7 @@ ext_sym_render(void* ext_sym, float x, float y, void* ud) {
 
 	auto node(*static_cast<n0::SceneNodePtr*>(ext_sym));
 	auto& casset = node->GetSharedComp<n0::CompAsset>();
-    ur2::RenderState rs;
+    ur::RenderState rs;
 	n2::RenderSystem::Instance()->Draw(
         *UR_DEV, *_rp->ctx, rs, casset, sm::vec2(x, y), 0, sm::vec2(1, 1), sm::vec2(0, 0), rp
     );
@@ -371,7 +371,7 @@ GTxt::GTxt()
 {
 }
 
-void GTxt::Init(const ur2::Device& dev)
+void GTxt::Init(const ur::Device& dev)
 {
     UR_DEV = &dev;
 
@@ -384,7 +384,7 @@ void GTxt::Init(const ur2::Device& dev)
     gtxt_richtext_ext_sym_cb_init(&ext_sym_create, &ext_sym_release, &ext_sym_get_size, &ext_sym_render, nullptr);
 }
 
-void GTxt::Draw(ur2::Context& ctx, const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
+void GTxt::Draw(ur::Context& ctx, const std::string& text, const pt2::Textbox& style, const sm::Matrix2D& mat,
 	            const pt0::Color& mul, const pt0::Color& add, int time, bool richtext, tess::Painter* pt, bool texcoords_relocate)
 {
 	gtxt_label_style gtxt_style;

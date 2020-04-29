@@ -1,7 +1,7 @@
 #include "facade/EasyGUI.h"
 #include "facade/GTxt.h"
 
-#include <unirender2/Texture.h>
+#include <unirender/Texture.h>
 #include <tessellation/Painter.h>
 #include <painting2/Textbox.h>
 #include <easygui/Callback.h>
@@ -15,8 +15,8 @@ namespace
 
 pt2::Textbox TEXTBOX;
 
-std::shared_ptr<ur2::Device> UR_DEV = nullptr;
-std::shared_ptr<ur2::Context> UR_CTX = nullptr;
+std::shared_ptr<ur::Device> UR_DEV = nullptr;
+std::shared_ptr<ur::Context> UR_CTX = nullptr;
 
 enum TexType
 {
@@ -56,7 +56,7 @@ EasyGUI::EasyGUI()
 	cb.get_label_sz = [](const char* label)->sm::vec2 {
 		return GTxt::Instance()->CalcLabelSize(label, TEXTBOX);
 	};
-	cb.draw_label = [](ur2::Context& ctx, const char* label, const sm::vec2& pos, float angle, uint32_t color, tess::Painter& pt)
+	cb.draw_label = [](ur::Context& ctx, const char* label, const sm::vec2& pos, float angle, uint32_t color, tess::Painter& pt)
 	{
 		if (!label) {
 			return;
@@ -80,7 +80,7 @@ EasyGUI::EasyGUI()
 		{
 			assert(begin < end);
 			sm::irect qr(0, 0, tex.w, tex.h);
-            ur2::TexturePtr cached_tex = nullptr;
+            ur::TexturePtr cached_tex = nullptr;
 			auto cached_texcoords = rp::Callback::QueryCachedTexQuad(tex.id, qr, cached_tex);
 			if (cached_texcoords)
 			{
