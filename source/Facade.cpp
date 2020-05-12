@@ -16,6 +16,7 @@
 #include <painting3/Painting3.h>
 #include <node2/AABBSystem.h>
 #include <renderpipeline/Callback.h>
+#include <shadergraph/ShaderGraph.h>
 
 namespace facade
 {
@@ -94,6 +95,7 @@ void Facade::Update(float dt)
 	et::GlobalClock::Instance()->Update(dt);
 	anim::GlobalClock::Instance()->Update(dt);
 	model::GlobalClock::Instance()->Update(dt);
+    shadergraph::ShaderGraph::Instance()->Update(dt);
 }
 
 bool Facade::Flush(ur::Context& ctx)
