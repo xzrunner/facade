@@ -24,11 +24,9 @@ ImageLoader::ImageLoader(const std::string& res_path)
 {
 }
 
-bool ImageLoader::Load(const ur::Device& dev, ur::TextureWrap wrap,
-                       ur::TextureMinificationFilter min_filter,
-                       ur::TextureMagnificationFilter mag_filter)
+bool ImageLoader::Load(const ur::Device& dev)
 {
-	return LoadRaw(dev, wrap, min_filter, mag_filter);
+	return LoadRaw(dev);
 
 	//auto& filepath = m_res_path.GetFilepath();
 	//if (filepath.find(".ept") != CU_STR::npos ||
@@ -67,9 +65,7 @@ bool ImageLoader::Load(const ur::Device& dev, ur::TextureWrap wrap,
 //	return true;
 //}
 
-bool ImageLoader::LoadRaw(const ur::Device& dev, ur::TextureWrap wrap,
-                          ur::TextureMinificationFilter min_filter,
-                          ur::TextureMagnificationFilter mag_filter)
+bool ImageLoader::LoadRaw(const ur::Device& dev)
 {
 	if (!boost::filesystem::is_regular_file(m_res_path)) {
 		return false;
@@ -153,7 +149,6 @@ bool ImageLoader::LoadRaw(const ur::Device& dev, ur::TextureWrap wrap,
     auto bmp = std::make_shared<ur::Bitmap>(w, h, channels, pixels);
 	free(pixels);
     m_tex = dev.CreateTexture(*bmp, tf);
-
 
     //if (file_type == FILE_HDR)
     //{

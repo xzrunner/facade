@@ -22,9 +22,7 @@ class ImageLoader
 public:
 	ImageLoader(const std::string& res_path);
 
-    bool Load(const ur::Device& dev, ur::TextureWrap wrap = ur::TextureWrap::Repeat,
-        ur::TextureMinificationFilter min_filter = ur::TextureMinificationFilter::Linear,
-        ur::TextureMagnificationFilter mag_filter = ur::TextureMagnificationFilter::Linear);
+    bool Load(const ur::Device& dev);
 //	bool AsyncLoad(int format, int width, int height, const std::shared_ptr<Image>& img);
 
     //auto GetType() const { return m_type; }
@@ -38,8 +36,7 @@ public:
     auto GetTexture() const { return m_tex; }
 
 private:
-	bool LoadRaw(const ur::Device& dev, ur::TextureWrap wrap,
-        ur::TextureMinificationFilter min_filter, ur::TextureMagnificationFilter mag_filter);
+	bool LoadRaw(const ur::Device& dev);
 //	bool LoadBin();
 //	bool LoadBin(const timp::TextureLoader& loader);
 
