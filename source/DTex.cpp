@@ -99,10 +99,8 @@ void DTex::Init(const ur::Device& dev)
     vbuf->ReadFromMemory(vertices, vbuf_sz, 0);
 
     m_debug_va->SetVertexBufferAttrs({
-        // pos
-        std::make_shared<ur::VertexBufferAttribute>(ur::ComponentDataType::Float, 2, 0, 16),
-        // uv
-        std::make_shared<ur::VertexBufferAttribute>(ur::ComponentDataType::Float, 2, 8, 16)
+        std::make_shared<ur::VertexBufferAttribute>(0, ur::ComponentDataType::Float, 2, 0, 16),
+        std::make_shared<ur::VertexBufferAttribute>(1, ur::ComponentDataType::Float, 2, 8, 16)
     });
 
     m_debug_va->SetVertexBuffer(vbuf);
