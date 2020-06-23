@@ -8,7 +8,6 @@
 #include <fs_file.h>
 #include <guard/check.h>
 #include <unirender/Device.h>
-#include <unirender/Bitmap.h>
 #include <renderpipeline/HDREquirectangularToCubemap.h>
 
 #include <boost/filesystem.hpp>
@@ -92,6 +91,7 @@ bool ImageLoader::LoadRaw(const ur::Device& dev)
 
     ur::TextureFormat tf;
     int channels = 0;
+	bool is_flt = false;
 	switch (fmt)
 	{
 	case GPF_ALPHA: case GPF_LUMINANCE: case GPF_LUMINANCE_ALPHA:
@@ -121,14 +121,17 @@ bool ImageLoader::LoadRaw(const ur::Device& dev)
     case GPF_RGBA16F:
         tf =  ur::TextureFormat::RGBA16F;
         channels = 4;
+		is_flt = true;
         break;
     case GPF_RGB16F:
         tf =  ur::TextureFormat::RGB16F;
         channels = 3;
+		is_flt = true;
         break;
     case GPF_RGB32F:
         tf =  ur::TextureFormat::RGB32F;
         channels = 3;
+		is_flt = true;
         break;
 	case GPF_COMPRESSED_RGBA_S3TC_DXT1_EXT:
 		tf =  ur::TextureFormat::COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -146,9 +149,12 @@ bool ImageLoader::LoadRaw(const ur::Device& dev)
 		GD_REPORT_ASSERT("unknown type.");
 	}
 
-    auto bmp = std::make_shared<ur::Bitmap>(w, h, channels, pixels);
+	size_t buf_sz = w * h * channels;
+	if (is_flt) {
+		buf_sz *= 4;
+	}
+    m_tex = dev.CreateTexture(w, h, tf, pixels, buf_sz);
 	free(pixels);
-    m_tex = dev.CreateTexture(*bmp, tf);
 
     //if (file_type == FILE_HDR)
     //{
