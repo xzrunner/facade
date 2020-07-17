@@ -9,6 +9,7 @@
 #include <unirender/ComponentDataType.h>
 #include <unirender/DrawState.h>
 #include <unirender/Factory.h>
+#include <shadertrans/ShaderTrans.h>
 #include <dtex/TextureBuffer.h>
 #include <dtex/PixelBuffer.h>
 #include <dtex/TexRenderer.h>
@@ -71,7 +72,10 @@ void DTex::Init(const ur::Device& dev)
     m_texture_buffer = std::make_unique<dtex::TextureBuffer>(*UR_DEV, 1024, 1024);
     m_tex_renderer = std::make_unique<dtex::TexRenderer>(*UR_DEV);
 
-    m_debug_shader = dev.CreateShaderProgram(vs, fs);
+    std::vector<unsigned int> _vs, _fs;
+    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::VertexShader, vs, _vs);
+    shadertrans::ShaderTrans::GLSL2SpirV(shadertrans::ShaderStage::PixelShader, fs, _fs);
+    m_debug_shader = dev.CreateShaderProgram(_vs, _fs);
 
     m_debug_va = dev.CreateVertexArray();
 
