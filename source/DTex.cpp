@@ -5,7 +5,7 @@
 #include <unirender/IndexBuffer.h>
 #include <unirender/VertexBuffer.h>
 #include <unirender/VertexArray.h>
-#include <unirender/VertexBufferAttribute.h>
+#include <unirender/VertexInputAttribute.h>
 #include <unirender/ComponentDataType.h>
 #include <unirender/DrawState.h>
 #include <unirender/Factory.h>
@@ -100,14 +100,13 @@ void DTex::Init(const ur::Device& dev)
         max.x, max.y, 1.0f, 1.0f,
         min.x, max.y, 0.0f, 1.0f,
     };
-    vbuf->ReadFromMemory(vertices, vbuf_sz, 0);
-
+    m_debug_va->SetVertexBuffer(vbuf);
     m_debug_va->SetVertexBufferAttrs({
-        std::make_shared<ur::VertexBufferAttribute>(0, ur::ComponentDataType::Float, 2, 0, 16),
-        std::make_shared<ur::VertexBufferAttribute>(1, ur::ComponentDataType::Float, 2, 8, 16)
+        std::make_shared<ur::VertexInputAttribute>(0, ur::ComponentDataType::Float, 2, 0, 16),
+        std::make_shared<ur::VertexInputAttribute>(1, ur::ComponentDataType::Float, 2, 8, 16)
     });
 
-    m_debug_va->SetVertexBuffer(vbuf);
+    vbuf->ReadFromMemory(vertices, vbuf_sz, 0);
 }
 
 void DTex::LoadSymStart()
